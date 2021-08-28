@@ -13,7 +13,7 @@ fastify.get('/', (request, reply) => {
 // Run the server!
 const start = async () => {
   try {
-    await fastify.listen(process.env.PORT);
+    await fastify.listen(process.env.BACKEND_PORT);
   } catch (error) {
     fastify.log.error(error);
     process.exit(1);

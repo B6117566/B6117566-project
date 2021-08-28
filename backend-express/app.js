@@ -12,4 +12,4 @@ app.get('/', (req, res) => {
 });
 
 // Run the server!
-app.listen(process.env.PORT);
+app.listen(process.env.BACKEND_PORT);
