@@ -3,7 +3,7 @@ require('dotenv').config({ path: '../.env' });
 const address = require('../test/Address.json');
 
 // Require the framework and instantiate it
-const fastify = require('fastify')({ logger: true });
+const fastify = require('fastify')({ logger: false });
 
 // Declare a route
 fastify.get('/', (request, reply) => {
