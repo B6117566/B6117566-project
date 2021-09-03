@@ -1,42 +1,39 @@
 import React from 'react';
 import { IconButton, Badge, MenuItem, Menu } from '@material-ui/core';
-import { createStyles, Theme, makeStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import AccountCircle from '@material-ui/icons/AccountCircle';
 import MailIcon from '@material-ui/icons/Mail';
 import NotificationsIcon from '@material-ui/icons/Notifications';
 import MoreIcon from '@material-ui/icons/MoreVert';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    marginBorder: {
-      marginLeft: '0.5rem',
-    },
-    sectionDesktop: {
-      display: 'none',
-      [theme.breakpoints.up('sm')]: {
-        display: 'flex',
-      },
-    },
-    sectionMobile: {
+const useStyles = makeStyles((theme) => ({
+  marginBorder: {
+    marginLeft: '0.5rem',
+  },
+  sectionDesktop: {
+    display: 'none',
+    [theme.breakpoints.up('sm')]: {
       display: 'flex',
-      [theme.breakpoints.up('sm')]: {
-        display: 'none',
-      },
     },
-  })
-);
+  },
+  sectionMobile: {
+    display: 'flex',
+    [theme.breakpoints.up('sm')]: {
+      display: 'none',
+    },
+  },
+}));
 
 function MainMenuManageIcon() {
   const classes = useStyles();
 
-  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] =
-    React.useState<null | HTMLElement>(null);
+  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [mobileMoreAnchorEl, setMobileMoreAnchorEl] = React.useState(null);
 
   const isMenuOpen = Boolean(anchorEl);
   const isMobileMenuOpen = Boolean(mobileMoreAnchorEl);
 
-  const handleProfileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleProfileMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
   };
 
@@ -49,7 +46,7 @@ function MainMenuManageIcon() {
     handleMobileMenuClose();
   };
 
-  const handleMobileMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+  const handleMobileMenuOpen = (event) => {
     setMobileMoreAnchorEl(event.currentTarget);
   };
 
