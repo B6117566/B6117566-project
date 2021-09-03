@@ -1,8 +1,5 @@
-import {
-  Box,
-  Container,
-  Typography
-} from '@material-ui/core';
+import React from 'react';
+import { Box, Container, Typography } from '@material-ui/core';
 
 const NotFound = () => (
   <>
@@ -10,15 +7,11 @@ const NotFound = () => (
       sx={{
         display: 'flex',
         flexDirection: 'column',
-        justifyContent: 'center'
+        justifyContent: 'center',
       }}
     >
       <Container maxWidth="md">
-        <Typography
-          align="center"
-          color="textPrimary"
-          variant="h1"
-        >
+        <Typography align="center" color="textPrimary" variant="h1">
           404: The page you are looking for isn’t here
         </Typography>
       </Container>

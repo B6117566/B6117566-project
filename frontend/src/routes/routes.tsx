@@ -1,5 +1,10 @@
 import { Navigate } from 'react-router-dom';
+
+//Layout
+import BlankLayout from '../layouts/BlankLayout';
 import MainLayout from '../layouts/MainLayout';
+
+//Page
 import HomePage from '../pages/HomePage';
 import NotFound from '../pages/NotFound';
 
@@ -35,7 +40,7 @@ const routes = [
   }, */
   {
     path: '/404',
-    element: <MainLayout />,
+    element: <BlankLayout />,
     children: [
       { path: '/', element: <NotFound /> },
       { path: '*', element: <Navigate to="/404" /> },
