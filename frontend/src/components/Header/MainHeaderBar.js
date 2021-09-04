@@ -3,76 +3,69 @@ import Toolbar from '@material-ui/core/Toolbar';
 import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
-import {
-  createStyles,
-  alpha,
-  Theme,
-  makeStyles,
-} from '@material-ui/core/styles';
+import { alpha, makeStyles } from '@material-ui/core/styles';
 import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import MainMenuManageIcon from './MainMenuManageIcon';
 import MainMenuSelectIcon from './MainMenuSelectIcon';
 import MainSideBar from './MainSideBar';
 
-const useStyles = makeStyles((theme: Theme) =>
-  createStyles({
-    root: {
-      flexGrow: 1,
-      backgroundColor: '#A4EDF5',
-      boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.2)',
+const useStyles = makeStyles((theme) => ({
+  root: {
+    flexGrow: 1,
+    backgroundColor: '#A4EDF5',
+    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.2)',
+  },
+  menuButton: {
+    marginRight: theme.spacing(2),
+  },
+  title: {
+    display: 'none',
+    [theme.breakpoints.up('sm')]: {
+      display: 'block',
     },
-    menuButton: {
-      marginRight: theme.spacing(2),
-    },
-    title: {
-      display: 'none',
-      [theme.breakpoints.up('sm')]: {
-        display: 'block',
-      },
-    },
+  },
 
-    search: {
-      position: 'relative',
-      borderRadius: 20,
-      backgroundColor: alpha(theme.palette.common.white, 0.8),
-      '&:hover': {
-        backgroundColor: alpha(theme.palette.common.white, 1),
+  search: {
+    position: 'relative',
+    borderRadius: 20,
+    backgroundColor: alpha(theme.palette.common.white, 0.8),
+    '&:hover': {
+      backgroundColor: alpha(theme.palette.common.white, 1),
+    },
+    marginLeft: 0,
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      marginLeft: theme.spacing(1),
+      width: 'auto',
+    },
+  },
+  searchIcon: {
+    padding: theme.spacing(0, 2),
+    height: '100%',
+    position: 'absolute',
+    pointerEvents: 'none',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  inputRoot: {
+    color: 'inherit',
+  },
+  inputInput: {
+    padding: theme.spacing(1, 1, 1, 0),
+    // vertical padding + font size from searchIcon
+    paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
+    transition: theme.transitions.create('width'),
+    width: '100%',
+    [theme.breakpoints.up('sm')]: {
+      width: '15ch',
+      '&:focus': {
+        width: '25ch',
       },
-      marginLeft: 0,
-      width: '100%',
-      [theme.breakpoints.up('sm')]: {
-        marginLeft: theme.spacing(1),
-        width: 'auto',
-      },
     },
-    searchIcon: {
-      padding: theme.spacing(0, 2),
-      height: '100%',
-      position: 'absolute',
-      pointerEvents: 'none',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-    },
-    inputRoot: {
-      color: 'inherit',
-    },
-    inputInput: {
-      padding: theme.spacing(1, 1, 1, 0),
-      // vertical padding + font size from searchIcon
-      paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
-      transition: theme.transitions.create('width'),
-      width: '100%',
-      [theme.breakpoints.up('sm')]: {
-        width: '15ch',
-        '&:focus': {
-          width: '25ch',
-        },
-      },
-    },
-  })
-);
+  },
+}));
 
 export default function MainHeader() {
   const classes = useStyles();
