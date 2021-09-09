@@ -1,25 +1,35 @@
 import React from 'react';
-import IconButton from '@material-ui/core/IconButton';
-import AccountCircle from '@material-ui/icons/AccountCircle';
-import MailIcon from '@material-ui/icons/Mail';
-import NotificationsIcon from '@material-ui/icons/Notifications';
+import { Button, makeStyles } from '@material-ui/core';
+import { Link } from 'react-router-dom';
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    display: 'flex',
+    marginLeft: '2rem',
+    height: '2.5rem',
+  },
+  gap: {
+    marginLeft: '0.5rem',
+  },
+  title: { fontSize: '1.1rem' },
+}));
 
 export default function MainMenuSelectIcon() {
+  const classes = useStyles();
+
   return (
-    <div>
-      <IconButton aria-label="show 4 new mails" color="inherit">
-        <MailIcon />
-      </IconButton>
-      <IconButton aria-label="show 17 new notifications" color="inherit">
-        <NotificationsIcon />
-      </IconButton>
-      <IconButton
-        aria-label="account of current user"
-        aria-haspopup="true"
-        color="inherit"
-      >
-        <AccountCircle />
-      </IconButton>
+    <div className={classes.root}>
+      <Link to="/genders/men" style={{ textDecoration: 'none' }}>
+        <Button>
+          <b className={classes.title}>MEN</b>
+        </Button>
+      </Link>
+      <div className={classes.gap} />
+      <Link to="/genders/women" style={{ textDecoration: 'none' }}>
+        <Button>
+          <b className={classes.title}>WOMEN</b>
+        </Button>
+      </Link>
     </div>
   );
 }

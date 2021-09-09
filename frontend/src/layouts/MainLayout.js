@@ -1,18 +1,16 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
 import MainHeaderBar from '../components/Header/MainHeaderBar';
-import ScrollTop from '../components/Header/ScrollTop';
+import ScrollTop from '../components/ScrollTop';
 
-function MainLayout() {
+export default function MainLayout() {
   return (
     <>
-      <header style={{ position: 'sticky', top: 0 }}>
+      <div style={{ position: 'sticky', top: 0, zIndex: 1 }}>
         <MainHeaderBar />
-      </header>
+      </div>
       <Outlet />
       <ScrollTop />
     </>
   );
 }
-
-export default MainLayout;

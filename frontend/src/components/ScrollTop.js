@@ -17,7 +17,7 @@ function BackToTop(props) {
   const classes = useStyles();
   const trigger = useScrollTrigger({
     disableHysteresis: true,
-    threshold: 200,
+    threshold: 300,
   });
 
   const handleClick = () => {

@@ -1,12 +1,17 @@
+import React, { lazy } from 'react';
 import { Navigate } from 'react-router-dom';
 
 //Layout
-import BlankLayout from '../layouts/BlankLayout';
-import MainLayout from '../layouts/MainLayout';
+const MainLayout = lazy(() => import('../layouts/MainLayout'));
+const BlankLayout = lazy(() => import('../layouts/BlankLayout'));
+const GenderLayout = lazy(() => import('../layouts/GenderLayout'));
 
 //Page
-import HomePage from '../pages/HomePage';
-import NotFound from '../pages/NotFound';
+const HomePage = lazy(() => import('../pages/HomePage'));
+const NotFound = lazy(() => import('../pages/NotFound'));
+const Men = lazy(() => import('../pages/Men'));
+const Women = lazy(() => import('../pages/Women'));
+const Product = lazy(() => import('../pages/Product'));
 
 const routes = [
   {
@@ -14,6 +19,16 @@ const routes = [
     element: <MainLayout />,
     children: [
       { path: '/', element: <HomePage /> },
+      {
+        path: '/genders',
+        element: <GenderLayout />,
+        children: [
+          { path: '/men', element: <Men /> },
+          { path: '/women', element: <Women /> },
+          { path: '*', element: <Navigate to="/404" /> },
+        ],
+      },
+      { path: '/products/:productId', element: <Product /> },
       { path: '*', element: <Navigate to="/404" /> },
     ],
   },

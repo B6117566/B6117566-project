@@ -1,39 +1,41 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import Toolbar from '@material-ui/core/Toolbar';
-import IconButton from '@material-ui/core/IconButton';
 import Typography from '@material-ui/core/Typography';
 import InputBase from '@material-ui/core/InputBase';
 import { alpha, makeStyles } from '@material-ui/core/styles';
-import MenuIcon from '@material-ui/icons/Menu';
 import SearchIcon from '@material-ui/icons/Search';
 import MainMenuManageIcon from './MainMenuManageIcon';
 import MainMenuSelectIcon from './MainMenuSelectIcon';
-import MainSideBar from './MainSideBar';
+import { Container } from '@material-ui/core';
+import { Link } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
-    backgroundColor: '#A4EDF5',
-    boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.2)',
-  },
-  menuButton: {
-    marginRight: theme.spacing(2),
+    backgroundColor: '#FFFFFF',
+    boxShadow: '0 3px 10px 0 rgba(0, 0, 0, 0.1)',
   },
   title: {
     display: 'none',
     [theme.breakpoints.up('sm')]: {
-      display: 'block',
+      display: 'flex',
     },
   },
-
+  imgTitle: {
+    width: '25px',
+    height: '25px',
+    maxHeight: '50%',
+    maxWidth: '50%',
+    marginRight: '1rem',
+  },
+  grow: {
+    flexGrow: 1,
+  },
   search: {
     position: 'relative',
-    borderRadius: 20,
-    backgroundColor: alpha(theme.palette.common.white, 0.8),
-    '&:hover': {
-      backgroundColor: alpha(theme.palette.common.white, 1),
-    },
-    marginLeft: 0,
+    backgroundColor: alpha('#EEEEEE', 1),
+    borderRadius: '20px',
+    marginLeft: 10,
     width: '100%',
     [theme.breakpoints.up('sm')]: {
       marginLeft: theme.spacing(1),
@@ -54,10 +56,9 @@ const useStyles = makeStyles((theme) => ({
   },
   inputInput: {
     padding: theme.spacing(1, 1, 1, 0),
-    // vertical padding + font size from searchIcon
     paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
     transition: theme.transitions.create('width'),
-    width: '100%',
+    fontWeight:'bold',
     [theme.breakpoints.up('sm')]: {
       width: '15ch',
       '&:focus': {
@@ -69,43 +70,50 @@ const useStyles = makeStyles((theme) => ({
 
 export default function MainHeader() {
   const classes = useStyles();
-  const sideBarRef = useRef();
+  const [search, setSearch] = React.useState('');
+
+  const handleChange = (event) => {
+    setSearch(event.target.value);
+  };
 
   return (
     <div className={classes.root}>
-      <Toolbar>
-        <MainSideBar ref={sideBarRef} />
-        <IconButton
-          edge="start"
-          className={classes.menuButton}
-          color="inherit"
-          aria-label="open drawer"
-        >
-          <MenuIcon />
-        </IconButton>
-
-        <Typography className={classes.title} variant="h5" noWrap>
-          Clothing Store
-        </Typography>
-
-        <MainMenuSelectIcon />
-
-        <div className={classes.search}>
-          <div className={classes.searchIcon}>
-            <SearchIcon />
+      <Container>
+        <Toolbar>
+          <Link to="/" style={{ textDecoration: 'none', color: 'black' }}>
+            <div className={classes.title}>
+              <img src="/static/logo.png" alt="LOGO" className={classes.imgTitle} />
+              <Typography variant="h5" noWrap>
+                <b>Clothing Store</b>
+              </Typography>
+            </div>
+          </Link>
+          <MainMenuSelectIcon />
+          <div className={classes.grow} />
+          <div className={classes.search}>
+            <div className={classes.searchIcon}>
+              <SearchIcon />
+            </div>
+            <InputBase
+              type="text"
+              placeholder="ค้นหาสินค้า…"
+              classes={{
+                root: classes.inputRoot,
+                input: classes.inputInput,
+              }}
+              inputProps={{ 'aria-label': 'search' }}
+              value={search}
+              onChange={handleChange}
+              onKeyDown={(event) => {
+                if (event.keyCode === 13) {
+                  console.log(search || null);
+                }
+              }}
+            />
           </div>
-          <InputBase
-            placeholder="ค้นหาสินค้า…"
-            classes={{
-              root: classes.inputRoot,
-              input: classes.inputInput,
-            }}
-            inputProps={{ 'aria-label': 'search' }}
-          />
-        </div>
-
-        <MainMenuManageIcon />
-      </Toolbar>
+          <MainMenuManageIcon />
+        </Toolbar>
+      </Container>
     </div>
   );
 }
