@@ -1,3 +1,4 @@
+const validator = require('validator');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -5,7 +6,8 @@ const provinceSchema = Schema(
   {
     name: {
       type: String,
-      required: true,
+      require: [true, 'Enter an name province!'],
+      validate: [validator.isAlpha, 'Enter a valid name province format!'],
     },
   },
   { versionKey: false, collection: 'Province' }

@@ -1,6 +1,6 @@
 const Order = require('../model/order.model');
 
-const fgetOrders = async () => {
+const fgetOrders = async (limit, offset) => {
   return new Promise((resolve, reject) => {
     Order.find({}, (err, data) => {
       if (err) {
@@ -13,6 +13,8 @@ const fgetOrders = async () => {
         }
       }
     })
+      .limit(limit)
+      .skip(offset)
       .sort({ createdAt: 'desc' })
       .populate({
         path: 'cart_id',
@@ -87,7 +89,31 @@ const finsertOrder = async (data) => {
 //------------------------------------------------------------------
 module.exports = {
   getOrders: function (req, res, next) {
-    fgetOrders()
+    let limit = 20;
+    let offset = 0;
+
+    if (req.query.limit) {
+      if (req.query.limit.match(/^[0-9]+$/)) {
+        limit = parseInt(req.query.limit);
+      } else {
+        return res.status(400).json({
+          sucessful: false,
+          result: 'Limit was not correct format',
+        });
+      }
+    }
+    if (req.query.offset) {
+      if (req.query.offset.match(/^[0-9]+$/)) {
+        offset = parseInt(req.query.offset);
+      } else {
+        return res.status(400).json({
+          sucessful: false,
+          result: 'Offset was not correct format',
+        });
+      }
+    }
+    //---------------------------------------------------------
+    fgetOrders(limit, offset)
       .then((result) => {
         res.status(200).json({
           sucessful: true,

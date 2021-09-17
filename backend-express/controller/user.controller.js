@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const validator = require('validator');
 const key = process.env.JWT_SECRETKEY;
 
 const User = require('../model/user.model');
@@ -114,13 +115,13 @@ module.exports = {
       password: req.body.password,
     };
 
-    if (!payload.email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
+    if (!validator.isEmail(payload.email)) {
       return res.status(400).json({
         sucessful: false,
         result: 'input email was not correct format',
       });
     }
-    if (!payload.password.match(/^[A-Za-z0-9]+$/)) {
+    if (!validator.isAlphanumeric(payload.password)) {
       return res.status(400).json({
         sucessful: false,
         result: 'input password was not correct format',
@@ -182,19 +183,6 @@ module.exports = {
       });
   },
   signupUser: function (req, res, next) {
-    if (!req.body.email.match(/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/)) {
-      return res.status(400).json({
-        sucessful: false,
-        result: 'input email was not correct format',
-      });
-    }
-    if (!req.body.password.match(/^[A-Za-z0-9]+$/)) {
-      return res.status(400).json({
-        sucessful: false,
-        result: 'input password was not correct format',
-      });
-    }
-
     makeHash(req.body.password).then((hashText) => {
       const payload = new User(req.body);
       payload.password = hashText;
