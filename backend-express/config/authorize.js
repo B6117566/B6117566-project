@@ -18,7 +18,6 @@ const authorization = (req, res, next) => {
         });
       } else {
 
-        //ถ้ามีเวลาทำ ตรวจคำขอมาจาก customer หรือไม่
         console.log("AUTHER", decode);
         console.log(req.baseUrl);
         console.log(req.method);

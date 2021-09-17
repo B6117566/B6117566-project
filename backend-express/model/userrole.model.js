@@ -12,9 +12,7 @@ const userroleSchema = Schema(
       required: true,
     },
   },
-  {
-    collection: 'UserRole',
-  }
+  { versionKey: false, collection: 'UserRole' }
 );
 
 try {

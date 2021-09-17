@@ -15,9 +15,10 @@ const database = (req, res, next) => {
       next();
     })
     .catch(() => {
+      console.log('Cant Connected to MongoDB....');
       res.status(500).json({
-        status: 500,
-        message: 'Internal Server error',
+        sucessful: false,
+        result: 'Internal Server error',
       });
     });
 };

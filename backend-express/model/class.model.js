@@ -8,9 +8,7 @@ const classSchema = Schema(
       required: true,
     },
   },
-  {
-    collection: 'Class',
-  }
+  { versionKey: false, collection: 'Class' }
 );
 
 try {

@@ -10,14 +10,17 @@ const categorySchema = Schema(
       required: true,
     },
     class_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'Class',
-        required: true,
-      },
+      type: Schema.Types.ObjectId,
+      ref: 'Class',
+      required: true,
+    },
+    gender_id: {
+      type: Schema.Types.ObjectId,
+      ref: 'Gender',
+      required: true,
+    },
   },
-  {
-    collection: 'Category',
-  }
+  { versionKey: false, collection: 'Category' }
 );
 
 try {

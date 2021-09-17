@@ -23,9 +23,7 @@ const cartSchema = Schema(
       required: true,
     },
   },
-  {
-    collection: 'Cart',
-  }
+  { versionKey: false, collection: 'Cart' }
 );
 
 try {

@@ -8,9 +8,7 @@ const genderSchema = Schema(
       required: true,
     },
   },
-  {
-    collection: 'Gender',
-  }
+  { versionKey: false, collection: 'Gender' }
 );
 
 try {

@@ -8,9 +8,7 @@ const provinceSchema = Schema(
       required: true,
     },
   },
-  {
-    collection: 'Province',
-  }
+  { versionKey: false, collection: 'Province' }
 );
 
 try {

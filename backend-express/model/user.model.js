@@ -8,11 +8,14 @@ const userSchema = Schema(
   {
     email: {
       type: String,
-      required: true,
+      require: [true, 'Enter an email address.'],
+      unique: [true, 'That email address is taken.'],
+      lowercase: true,
     },
     password: {
       type: String,
-      required: true,
+      required: [true, 'Enter a password.'],
+      minLength: [4, 'Password should be at least four characters'],
     },
     firstname: {
       type: String,
@@ -41,9 +44,7 @@ const userSchema = Schema(
       required: true,
     },
   },
-  {
-    collection: 'User',
-  }
+  { timestamps: true, versionKey: false, collection: 'User' }
 );
 
 try {

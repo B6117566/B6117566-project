@@ -1,11 +1,14 @@
 require('dotenv').config({ path: '../.env' });
 const expressFunction = require('express');
 const expressApp = expressFunction();
+const cors = require('cors');
 const bodyParser = require('body-parser');
 const database = require('./config/database');
 //--------------------------------------------------------------------------
 
 //middleware
+expressApp.use(cors());
+
 expressApp.use((req, res, next) => {
   res.setHeader(
     'Access-Control-Allow-Origin',
@@ -29,9 +32,9 @@ expressApp.use(bodyParser.json(), database);
 expressApp.use('/api/v1', require('./routes/v1'));
 
 expressApp.use('*', (req, res, next) => {
-  res.status(404).json({
-    status: 404,
-    message: 'Not found',
+  res.status(501).json({
+    sucessful: false,
+    result: 'Method Not Implemented',
   });
 });
 //----------------------------------------------------------------------------

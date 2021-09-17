@@ -27,9 +27,7 @@ const stockSchema = Schema(
       required: true,
     },
   },
-  {
-    collection: 'Stock',
-  }
+  { timestamps: true, versionKey: false, collection: 'Stock' }
 );
 
 try {

@@ -25,9 +25,7 @@ const addressSchema = Schema(
       required: true,
     },
   },
-  {
-    collection: 'Address',
-  }
+  { versionKey: false, collection: 'Address' }
 );
 
 try {

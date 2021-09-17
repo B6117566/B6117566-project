@@ -39,20 +39,13 @@ const productSchema = Schema(
       required: true,
     },
     isSale: { type: Boolean, default: true },
-    gender_id: {
-      type: Schema.Types.ObjectId,
-      ref: 'Gender',
-      required: true,
-    },
     category_id: {
       type: Schema.Types.ObjectId,
       ref: 'Category',
       required: true,
     },
   },
-  {
-    collection: 'Product',
-  }
+  { timestamps: true, versionKey: false, collection: 'Product' }
 );
 
 try {

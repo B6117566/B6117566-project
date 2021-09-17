@@ -21,14 +21,12 @@ const orderSchema = Schema(
       ref: 'User',
       required: true,
     },
-    orderd: {
+    createdAt: {
       type: Date,
       default: Date.now,
     },
   },
-  {
-    collection: 'Order',
-  }
+  { versionKey: false, collection: 'Order' }
 );
 
 try {

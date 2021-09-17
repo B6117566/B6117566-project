@@ -12,9 +12,7 @@ const sizeSchema = Schema(
       required: true,
     },
   },
-  {
-    collection: 'Size',
-  }
+  { versionKey: false, collection: 'Size' }
 );
 
 try {
