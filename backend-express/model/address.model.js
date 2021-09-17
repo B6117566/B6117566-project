@@ -1,3 +1,4 @@
+const validator = require('validator');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -7,17 +8,18 @@ const addressSchema = Schema(
   {
     zipcode: {
       type: Number,
-      min: 5,
-      max: 5,
-      required: true,
+      min: [5, 'Quantity should be at least 5!'],
+      max: [5, 'Quantity should be at most 5!'],
+      required: [true, 'Enter an zipcode!'],
+      validate: [validator.isNumeric, 'Enter a valid zipcode format!'],
     },
     districtName: {
       type: String,
-      required: true,
+      required: [true, 'Enter an districtName!'],
     },
     subDistrictName: {
       type: String,
-      required: true,
+      required: [true, 'Enter an subDistrictName!'],
     },
     province_id: {
       type: Schema.Types.ObjectId,

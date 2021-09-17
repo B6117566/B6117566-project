@@ -1,3 +1,4 @@
+const validator = require('validator');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -8,30 +9,51 @@ const userSchema = Schema(
   {
     email: {
       type: String,
-      require: [true, 'Enter an email address.'],
-      unique: [true, 'That email address is taken.'],
+      require: [true, 'Enter an email address!'],
+      unique: [true, 'That email address is taken!'],
       lowercase: true,
+      validate: [validator.isEmail, 'Enter a valid email address!'],
     },
     password: {
       type: String,
       required: [true, 'Enter a password.'],
-      minLength: [4, 'Password should be at least four characters'],
+      minLength: [6, 'Password should be at least 6 characters!'],
+      maxlength: [16, 'Password should be at most 16 characters!'],
+      validate: [validator.isAlphanumeric, 'Enter a valid password format!'],
     },
     firstname: {
       type: String,
-      required: true,
+      required: [true, 'Enter an firstname!'],
+      validate: {
+        validator: function (v) {
+          return /^[\u0E00-\u0E7Fa-zA-Z\s\-]+$/.test(v);
+        },
+        message: 'Enter a valid firstname format!',
+      },
     },
     lastname: {
       type: String,
-      required: true,
+      required: [true, 'Enter an lastname!'],
+      validate: {
+        validator: function (v) {
+          return /^[\u0E00-\u0E7Fa-zA-Z\s\-]+$/.test(v);
+        },
+        message: 'Enter a valid lastname format!',
+      },
     },
     phone: {
       type: String,
-      required: true,
+      required: [true, 'Enter an phone number!'],
+      validate: {
+        validator: function (v) {
+          return /^(\d{3})-(\d{3})-(\d{4})$/.test(v);
+        },
+        message: (props) => `${props.value} is not a valid phone number!`,
+      },
     },
     addressDetail: {
       type: String,
-      required: true,
+      required: [true, 'Enter an addressDetail!'],
     },
     address_id: {
       type: Schema.Types.ObjectId,

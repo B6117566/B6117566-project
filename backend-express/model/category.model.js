@@ -7,7 +7,13 @@ const categorySchema = Schema(
   {
     name: {
       type: String,
-      required: true,
+      require: [true, 'Enter an name category!'],
+      validate: {
+        validator: function (v) {
+          return /^[\u0E00-\u0E7Fa-zA-Z\s\-]+$/.test(v);
+        },
+        message: 'Enter a valid name category format!',
+      },
     },
     class_id: {
       type: Schema.Types.ObjectId,

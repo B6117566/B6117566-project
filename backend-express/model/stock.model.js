@@ -1,3 +1,4 @@
+const validator = require('validator');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -8,13 +9,15 @@ const stockSchema = Schema(
   {
     quantity: {
       type: Number,
-      min: 0,
-      required: true,
+      min: [0, 'Quantity Stock should be at least 0!'],
+      required: [true, 'Enter a quantity.'],
+      validate: [validator.isNumeric, 'Enter a valid quantity format!'],
     },
     prices: {
       type: Number,
-      min: 1,
-      required: true,
+      min: [1, 'Prices Stock should be at least 1!'],
+      required: [true, 'Enter a prices.'],
+      validate: [validator.isNumeric, 'Enter a valid prices format!'],
     },
     product_id: {
       type: Schema.Types.ObjectId,
