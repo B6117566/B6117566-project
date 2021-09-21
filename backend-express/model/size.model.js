@@ -6,12 +6,18 @@ const sizeSchema = Schema(
   {
     name: {
       type: String,
-      require: [true, 'Enter an name size!'],
-      validate: [validator.isAlpha, 'Enter a valid name size format!'],
+      required: [true, 'Enter an name!'],
+      validate: {
+        validator: function (v) {
+          return /[\w\d\s\/\-\.]+$/.test(v);
+        },
+        message: 'Enter a valid name format!',
+      },
     },
     code: {
       type: String,
-      require: [true, 'Enter an code size!'],
+      required: [true, 'Enter an code size!'],
+      unique: [true, 'That code size is taken!'],
       validate: [validator.isAlphanumeric, 'Enter a valid code size format!'],
     },
   },

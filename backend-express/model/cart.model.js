@@ -1,4 +1,3 @@
-const validator = require('validator');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -9,9 +8,14 @@ const cartSchema = Schema(
   {
     quantity: {
       type: Number,
-      min: [1, 'Quantity Cart should be at least 1!'],
-      required: [true, 'Enter a quantity cart.'],
-      validate: [validator.isNumeric, 'Enter a valid quantity cart format!'],
+      min: [1, 'Quantity item should be at least 1!'],
+      required: [true, 'Enter a quantity item.'],
+      validate: {
+        validator: function (v) {
+          return /^[\d]+$/.test(v);
+        },
+        message: 'Enter a valid quantity item format!',
+      },
     },
     isCart: { type: Boolean, default: true },
     stock_id: {

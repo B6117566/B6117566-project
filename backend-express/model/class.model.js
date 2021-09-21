@@ -5,12 +5,12 @@ const classSchema = Schema(
   {
     name: {
       type: String,
-      require: [true, 'Enter an name class!'],
+      required: [true, 'Enter an name!'],
       validate: {
         validator: function (v) {
           return /^[\u0E00-\u0E7Fa-zA-Z\s\-]+$/.test(v);
         },
-        message: 'Enter a valid name class format!',
+        message: 'Enter a valid name format!',
       },
     },
   },

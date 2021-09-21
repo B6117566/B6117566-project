@@ -158,11 +158,15 @@ module.exports = {
     //---------------------------------------------------------
     fgetCategorysOnlyIdByGenderId(gender_id)
       .then((resultCategory) => {
-        fgetProductsByMultiCategoryId(resultCategory._id, limit, offset)
+        fgetProductsByMultiCategoryId(resultCategory, limit, offset)
           .then((resultProduct) => {
             res.status(200).json({
               sucessful: true,
               result: resultProduct,
+              pagination: {
+                count: limit,
+                offset: offset,
+              },
             });
           })
           .catch((err) => {
@@ -218,6 +222,10 @@ module.exports = {
         res.status(200).json({
           sucessful: true,
           result: resultProduct,
+          pagination: {
+            count: limit,
+            offset: offset,
+          },
         });
       })
       .catch((err) => {
@@ -266,6 +274,10 @@ module.exports = {
         res.status(200).json({
           sucessful: true,
           result: resultProduct,
+          pagination: {
+            count: limit,
+            offset: offset,
+          },
         });
       })
       .catch((err) => {

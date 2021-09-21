@@ -109,7 +109,7 @@ const fupdateUser = async (id, data) => {
 
 //------------------------------------------------------------------
 module.exports = {
-  signinUser: function (req, res, next) {
+  signinUser: async function (req, res, next) {
     const payload = {
       email: req.body.email,
       password: req.body.password,
