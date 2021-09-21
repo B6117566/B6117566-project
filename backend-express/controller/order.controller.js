@@ -118,6 +118,10 @@ module.exports = {
         res.status(200).json({
           sucessful: true,
           result: result,
+          pagination: {
+            count: limit,
+            offset: offset,
+          },
         });
       })
       .catch((err) => {

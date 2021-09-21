@@ -1,4 +1,3 @@
-const validator = require('validator');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -9,9 +8,14 @@ const orderSchema = Schema(
   {
     total: {
       type: Number,
-      min: [1, 'Order Total should be at least 1!'],
-      required: [true, 'Enter a order total.'],
-      validate: [validator.isNumeric, 'Enter a valid order total format!'],
+      min: [1, 'Total price should be at least 1!'],
+      required: [true, 'Enter a total price.'],
+      validate: {
+        validator: function (v) {
+          return /^[\d\.]+$/.test(v);
+        },
+        message: 'Enter a valid total price format!',
+      },
     },
     cart_id: {
       type: Schema.Types.ObjectId,

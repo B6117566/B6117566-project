@@ -6,8 +6,8 @@ const genderSchema = Schema(
   {
     name: {
       type: String,
-      require: [true, 'Enter an name gender!'],
-      validate: [validator.isAlpha, 'Enter a valid name gender format!'],
+      required: [true, 'Enter an name!'],
+      validate: [validator.isAlpha, 'Enter a valid name format!'],
     },
   },
   { versionKey: false, collection: 'Gender' }

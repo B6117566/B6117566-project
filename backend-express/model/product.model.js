@@ -1,4 +1,3 @@
-const validator = require('validator');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -9,45 +8,48 @@ const productSchema = Schema(
   {
     code: {
       type: String,
-      require: [true, 'Enter an code product!'],
-      validate: [
-        validator.isAlphanumeric,
-        'Enter a valid code product format!',
-      ],
+      required: [true, 'Enter an code product!'],
+      unique: [true, 'That code product is taken!'],
+      validate: {
+        validator: function (v) {
+          return /^E\d{6}\-\d{3}$/.test(v);
+        },
+        message: 'Enter a valid code product format!',
+      },
     },
     name: {
       type: String,
-      required: [true, 'Enter an name product!'],
+      required: [true, 'Enter an name!'],
       validate: {
         validator: function (v) {
           return /^[\u0E00-\u0E7Fa-zA-Z\s\-]+$/.test(v);
         },
-        message: 'Enter a valid name product format!',
+        message: 'Enter a valid name format!',
       },
     },
     shortDescription: {
       type: String,
-      require: [true, 'Enter an shortDescription!'],
+      required: [true, 'Enter an shortDescription!'],
     },
     longDescription: {
       type: String,
-      require: [true, 'Enter an longDescription!'],
+      required: [true, 'Enter an longDescription!'],
     },
     composition: {
       type: String,
-      require: [true, 'Enter an composition!'],
+      required: [true, 'Enter an composition!'],
     },
     washingInformation: {
       type: String,
-      require: [true, 'Enter an washingInformation!'],
+      required: [true, 'Enter an washingInformation!'],
     },
     file: {
       type: String,
-      require: [true, 'Enter an name file!'],
+      required: [true, 'Enter an name file!'],
     },
     img: {
       type: String,
-      require: [true, 'Enter an img file!'],
+      required: [true, 'Enter an img file!'],
     },
     isSale: { type: Boolean, default: true },
     category_id: {
