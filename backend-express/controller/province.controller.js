@@ -1,4 +1,5 @@
 const Province = require('../model/province.model');
+const errorController = require('./error.controller');
 
 const fgetProvinces = async () => {
   return new Promise((resolve, reject) => {
@@ -43,13 +44,18 @@ const fdeleteProvince = async (id) => {
 
 const fupdateProvince = async (id, data) => {
   return new Promise((resolve, reject) => {
-    Province.updateOne({ _id: id }, { $set: data }, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve('update successfully');
+    Province.updateOne(
+      { _id: id },
+      { $set: data },
+      { runValidators: true },
+      (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve('update successfully');
+        }
       }
-    });
+    );
   });
 };
 
@@ -66,7 +72,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -79,10 +85,12 @@ module.exports = {
         });
       })
       .catch((err) => {
-        res.status(400).json({
-          sucessful: false,
-          result: String(err),
-        });
+        if (errorController(err, req, res)) {
+          res.status(400).json({
+            sucessful: false,
+            result: { messages: String(err) },
+          });
+        }
       });
   },
   deleteProvince: function (req, res, next) {
@@ -91,7 +99,7 @@ module.exports = {
     if (!province_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input province id was not correct format',
+        result: { messages: 'input province id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -105,7 +113,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -115,7 +123,7 @@ module.exports = {
     if (!province_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input province id was not correct format',
+        result: { messages: 'input province id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -127,10 +135,12 @@ module.exports = {
         });
       })
       .catch((err) => {
-        res.status(404).json({
-          sucessful: false,
-          result: String(err),
-        });
+        if (errorController(err, req, res)) {
+          res.status(404).json({
+            sucessful: false,
+            result: { messages: String(err) },
+          });
+        }
       });
   },
 };

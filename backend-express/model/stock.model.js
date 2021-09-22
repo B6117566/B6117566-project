@@ -42,8 +42,4 @@ const stockSchema = Schema(
   { timestamps: true, versionKey: false, collection: 'Stock' }
 );
 
-try {
-  module.exports = mongoose.model('Stock');
-} catch (error) {
-  module.exports = mongoose.model('Stock', stockSchema);
-}
+module.exports = mongoose.model('Stock', stockSchema);

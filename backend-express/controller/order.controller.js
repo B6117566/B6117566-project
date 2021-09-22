@@ -1,4 +1,5 @@
 const Order = require('../model/order.model');
+const errorController = require('./error.controller');
 
 const fgetOrders = async (limit, offset) => {
   return new Promise((resolve, reject) => {
@@ -98,7 +99,7 @@ module.exports = {
       } else {
         return res.status(400).json({
           sucessful: false,
-          result: 'Limit was not correct format',
+          result: { messages: 'Limit was not correct format' },
         });
       }
     }
@@ -108,7 +109,7 @@ module.exports = {
       } else {
         return res.status(400).json({
           sucessful: false,
-          result: 'Offset was not correct format',
+          result: { messages: 'Offset was not correct format' },
         });
       }
     }
@@ -127,7 +128,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -137,7 +138,7 @@ module.exports = {
     if (!user_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input user id was not correct format',
+        result: { messages: 'input user id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -151,7 +152,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -164,10 +165,12 @@ module.exports = {
         });
       })
       .catch((err) => {
-        res.status(400).json({
-          sucessful: false,
-          result: String(err),
-        });
+        if (errorController(err, req, res)) {
+          res.status(400).json({
+            sucessful: false,
+            result: { messages: String(err) },
+          });
+        }
       });
   },
 };

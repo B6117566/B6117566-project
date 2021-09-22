@@ -25,7 +25,19 @@ expressApp.use((req, res, next) => {
   return next();
 });
 
-expressApp.use(bodyParser.json(), database);
+expressApp.use(bodyParser.json(), (err, req, res, next) => {
+  //Error-handling bodyParser
+  if (err) {
+    return res.status(400).json({
+      sucessful: false,
+      result: { messages: String(err) },
+    });
+  }
+  next();
+});
+
+//Connect Database
+expressApp.use(database);
 //----------------------------------------------------------------------------
 
 //Endpoint (API)
@@ -34,7 +46,7 @@ expressApp.use('/api/v1', require('./routes/v1'));
 expressApp.use('*', (req, res, next) => {
   res.status(501).json({
     sucessful: false,
-    result: 'Method Not Implemented',
+    result: { messages: 'Method Not Implemented' },
   });
 });
 //----------------------------------------------------------------------------

@@ -1,4 +1,5 @@
 const Class = require('../model/class.model');
+const errorController = require('./error.controller');
 
 const fgetClasses = async () => {
   return new Promise((resolve, reject) => {
@@ -43,13 +44,18 @@ const fdeleteClass = async (id) => {
 
 const fupdateClass = async (id, data) => {
   return new Promise((resolve, reject) => {
-    Class.updateOne({ _id: id }, { $set: data }, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve('update successfully');
+    Class.updateOne(
+      { _id: id },
+      { $set: { name: data } },
+      { runValidators: true },
+      (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve('update successfully');
+        }
       }
-    });
+    );
   });
 };
 
@@ -66,7 +72,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -79,10 +85,12 @@ module.exports = {
         });
       })
       .catch((err) => {
-        res.status(400).json({
-          sucessful: false,
-          result: String(err),
-        });
+        if (errorController(err, req, res)) {
+          res.status(400).json({
+            sucessful: false,
+            result: { messages: String(err) },
+          });
+        }
       });
   },
   deleteClass: function (req, res, next) {
@@ -91,7 +99,7 @@ module.exports = {
     if (!class_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input class id was not correct format',
+        result: { messages: 'input class id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -105,7 +113,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -115,7 +123,7 @@ module.exports = {
     if (!class_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input class id was not correct format',
+        result: { messages: 'input class id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -127,10 +135,12 @@ module.exports = {
         });
       })
       .catch((err) => {
-        res.status(404).json({
-          sucessful: false,
-          result: String(err),
-        });
+        if (errorController(err, req, res)) {
+          res.status(404).json({
+            sucessful: false,
+            result: { messages: String(err) },
+          });
+        }
       });
   },
 };

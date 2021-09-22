@@ -1,4 +1,5 @@
 const Cart = require('../model/cart.model');
+const errorController = require('./error.controller');
 
 const fgetCartsByUserId = async (user_id) => {
   return new Promise((resolve, reject) => {
@@ -58,13 +59,18 @@ const fdeleteCart = async (id) => {
 
 const fupdateCart = async (id, data) => {
   return new Promise((resolve, reject) => {
-    Cart.updateOne({ _id: id }, { $set: data }, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve('update successfully');
+    Cart.updateOne(
+      { _id: id },
+      { $set: data },
+      { runValidators: true },
+      (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve('update successfully');
+        }
       }
-    });
+    );
   });
 };
 //------------------------------------------------------------------
@@ -75,7 +81,7 @@ module.exports = {
     if (!user_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input user id was not correct format',
+        result: { messages: 'input user id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -89,7 +95,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -102,10 +108,12 @@ module.exports = {
         });
       })
       .catch((err) => {
-        res.status(400).json({
-          sucessful: false,
-          result: String(err),
-        });
+        if (errorController(err, req, res)) {
+          res.status(400).json({
+            sucessful: false,
+            result: { messages: String(err) },
+          });
+        }
       });
   },
   deleteCart: function (req, res, next) {
@@ -114,7 +122,7 @@ module.exports = {
     if (!cart_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input cart id was not correct format',
+        result: { messages: 'input cart id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -128,7 +136,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -138,22 +146,44 @@ module.exports = {
     if (!cart_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input cart id was not correct format',
+        result: { messages: 'input cart id was not correct format' },
+      });
+    }
+
+    const length = Object.keys(req.body).length;
+
+    if (length !== 1) {
+      return res.status(400).json({
+        sucessful: false,
+        result: {
+          messages: 'data cart get only one field was not correct format',
+        },
       });
     }
     //---------------------------------------------------------
-    fupdateCart(cart_id, req.body)
-      .then((result) => {
-        res.status(200).json({
-          sucessful: true,
-          result: result,
+    if (req.body.quantity || req.body.isCart) {
+      fupdateCart(cart_id, req.body)
+        .then((result) => {
+          res.status(200).json({
+            sucessful: true,
+            result: result,
+          });
+        })
+        .catch((err) => {
+          if (errorController(err, req, res)) {
+            res.status(404).json({
+              sucessful: false,
+              result: { messages: String(err) },
+            });
+          }
         });
-      })
-      .catch((err) => {
-        res.status(404).json({
-          sucessful: false,
-          result: String(err),
-        });
+    } else {
+      return res.status(400).json({
+        sucessful: false,
+        result: {
+          messages: 'data cart was not correct format',
+        },
       });
+    }
   },
 };

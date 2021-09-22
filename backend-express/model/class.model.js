@@ -17,8 +17,4 @@ const classSchema = Schema(
   { versionKey: false, collection: 'Class' }
 );
 
-try {
-  module.exports = mongoose.model('Class');
-} catch (error) {
-  module.exports = mongoose.model('Class', classSchema);
-}
+module.exports = mongoose.model('Class', classSchema);

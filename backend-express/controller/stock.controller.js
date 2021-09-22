@@ -1,4 +1,5 @@
 const Stock = require('../model/stock.model');
+const errorController = require('./error.controller');
 
 const fgetStocksByProductId = async (product_id) => {
   return new Promise((resolve, reject) => {
@@ -45,13 +46,18 @@ const fdeleteStock = async (id) => {
 
 const fupdateStock = async (id, data) => {
   return new Promise((resolve, reject) => {
-    Stock.updateOne({ _id: id }, { $set: data }, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve('update successfully');
+    Stock.updateOne(
+      { _id: id },
+      { $set: data },
+      { runValidators: true },
+      (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve('update successfully');
+        }
       }
-    });
+    );
   });
 };
 //------------------------------------------------------------------
@@ -62,7 +68,7 @@ module.exports = {
     if (!product_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input product id was not correct format',
+        result: { messages: 'input product id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -76,7 +82,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -89,10 +95,12 @@ module.exports = {
         });
       })
       .catch((err) => {
-        res.status(400).json({
-          sucessful: false,
-          result: String(err),
-        });
+        if (errorController(err, req, res)) {
+          res.status(400).json({
+            sucessful: false,
+            result: { messages: String(err) },
+          });
+        }
       });
   },
   deleteStock: function (req, res, next) {
@@ -101,7 +109,7 @@ module.exports = {
     if (!stock_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input stock id was not correct format',
+        result: { messages: 'input stock id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -115,7 +123,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -125,22 +133,44 @@ module.exports = {
     if (!stock_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input stock id was not correct format',
+        result: { messages: 'input stock id was not correct format' },
+      });
+    }
+
+    const length = Object.keys(req.body).length;
+
+    if (length !== 1) {
+      return res.status(400).json({
+        sucessful: false,
+        result: {
+          messages: 'data stock get only one field was not correct format',
+        },
       });
     }
     //---------------------------------------------------------
-    fupdateStock(stock_id, req.body)
-      .then((result) => {
-        res.status(200).json({
-          sucessful: true,
-          result: result,
+    if (req.body.quantity || req.body.prices) {
+      fupdateStock(stock_id, req.body)
+        .then((result) => {
+          res.status(200).json({
+            sucessful: true,
+            result: result,
+          });
+        })
+        .catch((err) => {
+          if (errorController(err, req, res)) {
+            res.status(404).json({
+              sucessful: false,
+              result: { messages: String(err) },
+            });
+          }
         });
-      })
-      .catch((err) => {
-        res.status(404).json({
-          sucessful: false,
-          result: String(err),
-        });
+    } else {
+      return res.status(400).json({
+        sucessful: false,
+        result: {
+          messages: 'data stock was not correct format',
+        },
       });
+    }
   },
 };

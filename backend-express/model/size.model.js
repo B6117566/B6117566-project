@@ -1,4 +1,3 @@
-const validator = require('validator');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -18,14 +17,15 @@ const sizeSchema = Schema(
       type: String,
       required: [true, 'Enter an code size!'],
       unique: [true, 'That code size is taken!'],
-      validate: [validator.isAlphanumeric, 'Enter a valid code size format!'],
+      validate: {
+        validator: function (v) {
+          return /^[\w]{6}$/.test(v);
+        },
+        message: 'Enter a valid code size format!',
+      },
     },
   },
   { versionKey: false, collection: 'Size' }
 );
 
-try {
-  module.exports = mongoose.model('Size');
-} catch (error) {
-  module.exports = mongoose.model('Size', sizeSchema);
-}
+module.exports = mongoose.model('Size', sizeSchema);
