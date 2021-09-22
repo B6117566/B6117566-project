@@ -1,4 +1,5 @@
 const validator = require('validator');
+const bcrypt = require('bcryptjs');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
@@ -69,8 +70,10 @@ const userSchema = Schema(
   { timestamps: true, versionKey: false, collection: 'User' }
 );
 
-try {
-  module.exports = mongoose.model('User');
-} catch (error) {
-  module.exports = mongoose.model('User', userSchema);
-}
+//schema middleware to apply before saving
+userSchema.pre('save', async function (next) {
+  this.password = await bcrypt.hash(this.password, process.env.HASH_SALT_ROUND);
+  next();
+});
+
+module.exports = mongoose.model('User', userSchema);

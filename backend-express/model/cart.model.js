@@ -32,8 +32,4 @@ const cartSchema = Schema(
   { versionKey: false, collection: 'Cart' }
 );
 
-try {
-  module.exports = mongoose.model('Cart');
-} catch (error) {
-  module.exports = mongoose.model('Cart', cartSchema);
-}
+module.exports = mongoose.model('Cart', cartSchema);

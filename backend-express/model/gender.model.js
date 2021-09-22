@@ -13,8 +13,4 @@ const genderSchema = Schema(
   { versionKey: false, collection: 'Gender' }
 );
 
-try {
-  module.exports = mongoose.model('Gender');
-} catch (error) {
-  module.exports = mongoose.model('Gender', genderSchema);
-}
+module.exports = mongoose.model('Gender', genderSchema);

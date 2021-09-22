@@ -29,8 +29,4 @@ const categorySchema = Schema(
   { versionKey: false, collection: 'Category' }
 );
 
-try {
-  module.exports = mongoose.model('Category');
-} catch (error) {
-  module.exports = mongoose.model('Category', categorySchema);
-}
+module.exports = mongoose.model('Category', categorySchema);

@@ -1,5 +1,6 @@
 const Product = require('../model/product.model');
 const { fgetCategorysOnlyIdByGenderId } = require('./category.controller');
+const errorController = require('./error.controller');
 
 const fgetProductsByMultiCategoryId = async (category_id, limit, offset) => {
   return new Promise((resolve, reject) => {
@@ -110,13 +111,18 @@ const fdeleteProduct = async (id) => {
 
 const fupdateProduct = async (id, data) => {
   return new Promise((resolve, reject) => {
-    Product.updateOne({ _id: id }, { $set: data }, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve('update successfully');
+    Product.updateOne(
+      { _id: id },
+      { $set: data },
+      { runValidators: true },
+      (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve('update successfully');
+        }
       }
-    });
+    );
   });
 };
 
@@ -128,7 +134,7 @@ module.exports = {
     if (!gender_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input gender id was not correct format',
+        result: { messages: 'input gender id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -141,7 +147,7 @@ module.exports = {
       } else {
         return res.status(400).json({
           sucessful: false,
-          result: 'Limit was not correct format',
+          result: { messages: 'Limit was not correct format' },
         });
       }
     }
@@ -151,7 +157,7 @@ module.exports = {
       } else {
         return res.status(400).json({
           sucessful: false,
-          result: 'Offset was not correct format',
+          result: { messages: 'Offset was not correct format' },
         });
       }
     }
@@ -172,14 +178,14 @@ module.exports = {
           .catch((err) => {
             res.status(404).json({
               sucessful: false,
-              result: String(err),
+              result: { messages: String(err) },
             });
           });
       })
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -189,7 +195,7 @@ module.exports = {
     if (!category_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input category id was not correct format',
+        result: { messages: 'input category id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -202,7 +208,7 @@ module.exports = {
       } else {
         return res.status(400).json({
           sucessful: false,
-          result: 'Limit was not correct format',
+          result: { messages: 'Limit was not correct format' },
         });
       }
     }
@@ -212,7 +218,7 @@ module.exports = {
       } else {
         return res.status(400).json({
           sucessful: false,
-          result: 'Offset was not correct format',
+          result: { messages: 'Offset was not correct format' },
         });
       }
     }
@@ -231,7 +237,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -241,7 +247,7 @@ module.exports = {
     if (!s_product.match(/^[A-Za-z\s]+$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input search product was not correct format',
+        result: { messages: 'input search product was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -254,7 +260,7 @@ module.exports = {
       } else {
         return res.status(400).json({
           sucessful: false,
-          result: 'Limit was not correct format',
+          result: { messages: 'Limit was not correct format' },
         });
       }
     }
@@ -264,7 +270,7 @@ module.exports = {
       } else {
         return res.status(400).json({
           sucessful: false,
-          result: 'Offset was not correct format',
+          result: { messages: 'Offset was not correct format' },
         });
       }
     }
@@ -283,7 +289,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -293,7 +299,7 @@ module.exports = {
     if (!product_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input product id was not correct format',
+        result: { messages: 'input product id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -307,7 +313,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -320,10 +326,12 @@ module.exports = {
         });
       })
       .catch((err) => {
-        res.status(400).json({
-          sucessful: false,
-          result: String(err),
-        });
+        if (errorController(err, req, res)) {
+          res.status(400).json({
+            sucessful: false,
+            result: { messages: String(err) },
+          });
+        }
       });
   },
   deleteProduct: function (req, res, next) {
@@ -332,7 +340,7 @@ module.exports = {
     if (!product_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input product id was not correct format',
+        result: { messages: 'input product id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -346,7 +354,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -356,22 +364,54 @@ module.exports = {
     if (!product_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input product id was not correct format',
+        result: { messages: 'input product id was not correct format' },
+      });
+    }
+
+    const length = Object.keys(req.body).length;
+
+    if (length >= 1 && length <= 2) {
+      return res.status(400).json({
+        sucessful: false,
+        result: {
+          messages: 'data product get only one or two field was not correct format',
+        },
       });
     }
     //---------------------------------------------------------
-    fupdateProduct(product_id, req.body)
-      .then((result) => {
-        res.status(200).json({
-          sucessful: true,
-          result: result,
+    if (
+      req.body.code ||
+      req.body.name ||
+      req.body.prices ||
+      req.body.shortDescription ||
+      req.body.longDescription ||
+      req.body.composition ||
+      req.body.washingInformation ||
+      (req.body.file && req.body.img) ||
+      req.body.isSale
+    ) {
+      fupdateProduct(product_id, req.body)
+        .then((result) => {
+          res.status(200).json({
+            sucessful: true,
+            result: result,
+          });
+        })
+        .catch((err) => {
+          if (errorController(err, req, res)) {
+            res.status(404).json({
+              sucessful: false,
+              result: { messages: String(err) },
+            });
+          }
         });
-      })
-      .catch((err) => {
-        res.status(404).json({
-          sucessful: false,
-          result: String(err),
-        });
+    } else {
+      return res.status(400).json({
+        sucessful: false,
+        result: {
+          messages: 'data product was not correct format',
+        },
       });
+    }
   },
 };

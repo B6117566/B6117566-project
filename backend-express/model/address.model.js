@@ -42,8 +42,4 @@ const addressSchema = Schema(
   { versionKey: false, collection: 'Address' }
 );
 
-try {
-  module.exports = mongoose.model('Address');
-} catch (error) {
-  module.exports = mongoose.model('Address', addressSchema);
-}
+module.exports = mongoose.model('Address', addressSchema);

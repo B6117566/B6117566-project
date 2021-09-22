@@ -17,8 +17,4 @@ const provinceSchema = Schema(
   { versionKey: false, collection: 'Province' }
 );
 
-try {
-  module.exports = mongoose.model('Province');
-} catch (error) {
-  module.exports = mongoose.model('Province', provinceSchema);
-}
+module.exports = mongoose.model('Province', provinceSchema);

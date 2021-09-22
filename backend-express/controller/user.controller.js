@@ -5,12 +5,9 @@ const key = process.env.JWT_SECRETKEY;
 
 const User = require('../model/user.model');
 const { ffindUserRole } = require('../controller/userrole.controller');
-//------------------------------------------------------------------
-const makeHash = async (plainText) => {
-  const result = await bcrypt.hash(plainText, process.env.HASH_SALT_ROUND);
-  return result;
-};
+const errorController = require('./error.controller');
 
+//------------------------------------------------------------------
 const compareHash = async (plainText, hashText) => {
   return new Promise((reslove, reject) => {
     bcrypt.compare(plainText, hashText, (err, data) => {
@@ -97,13 +94,18 @@ const fdeleteUser = async (id) => {
 
 const fupdateUser = async (id, data) => {
   return new Promise((resolve, reject) => {
-    User.updateOne({ _id: id }, { $set: data }, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve('update successfully');
+    User.updateOne(
+      { _id: id },
+      [{ $set: data }, { $unset: userRole_id }],
+      { runValidators: true },
+      (err) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve('update successfully');
+        }
       }
-    });
+    );
   });
 };
 
@@ -118,13 +120,13 @@ module.exports = {
     if (!validator.isEmail(payload.email)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input email was not correct format',
+        result: { messages: 'input email was not correct format' },
       });
     }
     if (!validator.isAlphanumeric(payload.password)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input password was not correct format',
+        result: { messages: 'input password was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -164,7 +166,7 @@ module.exports = {
     if (!user_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input user id was not correct format',
+        result: { messages: 'input user id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -178,39 +180,38 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
   signupUser: function (req, res, next) {
-    makeHash(req.body.password).then((hashText) => {
-      const payload = new User(req.body);
-      payload.password = hashText;
+    const payload = new User(req.body);
 
-      ffindUserRole('user')
-        .then((resultUserRole) => {
-          payload.userRole_id = resultUserRole._id;
-        })
-        .catch((err) => {
-          return res.status(500).json({
-            sucessful: false,
-            result: String(err),
-          });
+    ffindUserRole('user')
+      .then((resultUserRole) => {
+        payload.userRole_id = resultUserRole._id;
+      })
+      .catch((err) => {
+        return res.status(500).json({
+          sucessful: false,
+          result: { messages: String(err) },
         });
-      finsertUser(payload)
-        .then((result) => {
-          res.status(201).json({
-            sucessful: true,
-            result: result,
-          });
-        })
-        .catch((err) => {
+      });
+    finsertUser(payload)
+      .then((result) => {
+        res.status(201).json({
+          sucessful: true,
+          result: result,
+        });
+      })
+      .catch((err) => {
+        if (errorController(err, req, res)) {
           res.status(400).json({
             sucessful: false,
-            result: String(err),
+            result: { messages: String(err) },
           });
-        });
-    });
+        }
+      });
   },
   deleteUser: function (req, res, next) {
     const user_id = req.params.user_id;
@@ -218,7 +219,7 @@ module.exports = {
     if (!user_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input user id was not correct format',
+        result: { messages: 'input user id was not correct format' },
       });
     }
     //---------------------------------------------------------
@@ -232,7 +233,7 @@ module.exports = {
       .catch((err) => {
         res.status(404).json({
           sucessful: false,
-          result: String(err),
+          result: { messages: String(err) },
         });
       });
   },
@@ -242,22 +243,52 @@ module.exports = {
     if (!user_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({
         sucessful: false,
-        result: 'input user id was not correct format',
+        result: { messages: 'input user id was not correct format' },
+      });
+    }
+
+    const length = Object.keys(req.body).length;
+
+    if (length >= 1 && length <= 2) {
+      return res.status(400).json({
+        sucessful: false,
+        result: {
+          messages:
+            'data user get only one or two field was not correct format',
+        },
       });
     }
     //---------------------------------------------------------
-    fupdateUser(user_id, req.body)
-      .then((result) => {
-        res.status(200).json({
-          sucessful: true,
-          result: result,
+    if (
+      req.body.password ||
+      req.body.firstname ||
+      req.body.lastname ||
+      req.body.phone ||
+      req.body.addressDetail ||
+      req.body.address_id
+    ) {
+      fupdateUser(user_id, req.body)
+        .then((result) => {
+          res.status(200).json({
+            sucessful: true,
+            result: result,
+          });
+        })
+        .catch((err) => {
+          if (errorController(err, req, res)) {
+            res.status(404).json({
+              sucessful: false,
+              result: { messages: String(err) },
+            });
+          }
         });
-      })
-      .catch((err) => {
-        res.status(404).json({
-          sucessful: false,
-          result: String(err),
-        });
+    } else {
+      return res.status(400).json({
+        sucessful: false,
+        result: {
+          messages: 'data user was not correct format',
+        },
       });
+    }
   },
 };

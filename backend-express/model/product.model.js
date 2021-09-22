@@ -27,6 +27,17 @@ const productSchema = Schema(
         message: 'Enter a valid name format!',
       },
     },
+    prices: {
+      type: Number,
+      min: [1, 'Prices should be at least 1!'],
+      required: [true, 'Enter a prices.'],
+      validate: {
+        validator: function (v) {
+          return /^[\d\.]+$/.test(v);
+        },
+        message: 'Enter a valid prices format!',
+      },
+    },
     shortDescription: {
       type: String,
       required: [true, 'Enter an shortDescription!'],
@@ -61,8 +72,4 @@ const productSchema = Schema(
   { timestamps: true, versionKey: false, collection: 'Product' }
 );
 
-try {
-  module.exports = mongoose.model('Product');
-} catch (error) {
-  module.exports = mongoose.model('Product', productSchema);
-}
+module.exports = mongoose.model('Product', productSchema);

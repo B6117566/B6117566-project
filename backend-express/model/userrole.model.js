@@ -17,8 +17,4 @@ const userroleSchema = Schema(
   { versionKey: false, collection: 'UserRole' }
 );
 
-try {
-  module.exports = mongoose.model('UserRole');
-} catch (error) {
-  module.exports = mongoose.model('UserRole', userroleSchema);
-}
+module.exports = mongoose.model('UserRole', userroleSchema);

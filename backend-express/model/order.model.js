@@ -35,8 +35,4 @@ const orderSchema = Schema(
   { versionKey: false, collection: 'Order' }
 );
 
-try {
-  module.exports = mongoose.model('Order');
-} catch (error) {
-  module.exports = mongoose.model('Order', orderSchema);
-}
+module.exports = mongoose.model('Order', orderSchema);
