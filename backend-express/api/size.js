@@ -9,7 +9,6 @@ router
 router
   .route('/:size_id')
   .delete(controller.deleteSize)
-  .put(controller.updateSizes)
   .patch(controller.updateSize);
 
 module.exports = router;
