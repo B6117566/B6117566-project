@@ -117,32 +117,6 @@ module.exports = {
         });
       });
   },
-  updateSizes: function (req, res, next) {
-    const size_id = req.params.size_id;
-
-    if (!size_id.match(/^[0-9a-fA-F]{24}$/)) {
-      return res.status(400).json({
-        sucessful: false,
-        result: { messages: 'input size id was not correct format' },
-      });
-    }
-    //---------------------------------------------------------
-    fupdateSize(size_id, req.body)
-      .then((result) => {
-        res.status(200).json({
-          sucessful: true,
-          result: result,
-        });
-      })
-      .catch((err) => {
-        if (errorController(err, req, res)) {
-          res.status(404).json({
-            sucessful: false,
-            result: { messages: String(err) },
-          });
-        }
-      });
-  },
   updateSize: function (req, res, next) {
     const size_id = req.params.size_id;
 
