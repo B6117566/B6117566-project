@@ -1,5 +1,6 @@
 import React from 'react';
-import { Box, Container, Typography } from '@material-ui/core';
+import { Box, Button, Container, Typography } from '@material-ui/core';
+import { Link } from 'react-router-dom';
 
 const NotFound = () => (
   <>
@@ -11,9 +12,29 @@ const NotFound = () => (
       }}
     >
       <Container maxWidth="md">
-        <Typography align="center" color="textPrimary" variant="h1">
-          404: The page you are looking for isn’t here
-        </Typography>
+        <div style={{ marginTop: '10%', justifyContent: 'center' }}>
+          <Typography color="textPrimary" variant="h2">
+            ไม่พบหน้านี้
+          </Typography>
+          <hr />
+          <br />
+          <Typography color="textPrimary" variant="subtitle1">
+            ขออภัย เกิดข้อผิดพลาดขึ้น ไม่พบหน้าที่คุณค้นหา
+            กรุณาตรวจสอบให้แน่ใจว่า URL ถูกต้อง หรือลองไปที่หน้าอื่นของเรา
+          </Typography>
+          <br />
+          <Link to="/" style={{ textDecoration: 'none' }}>
+            <Button
+              variant="outlined"
+              color="secondary"
+              style={{ width: '100%', height: '3rem' }}
+            >
+              <Typography variant="h6">
+                <b>หน้าหลัก</b>
+              </Typography>
+            </Button>
+          </Link>
+        </div>
       </Container>
     </Box>
   </>

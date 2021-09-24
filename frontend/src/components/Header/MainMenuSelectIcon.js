@@ -1,8 +1,10 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Button, makeStyles } from '@material-ui/core';
 import { Link } from 'react-router-dom';
+import { getGenders } from '../../services/ProductListGender';
+import { SelectIDContext } from '../../context/SelectIDProvider';
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: 'flex',
     marginLeft: '2rem',
@@ -16,20 +18,27 @@ const useStyles = makeStyles((theme) => ({
 
 export default function MainMenuSelectIcon() {
   const classes = useStyles();
+  const [gendersApi, SetGenderApi] = useState([]);
+  const { SetGenderDP } = useContext(SelectIDContext);
 
-  return (
-    <div className={classes.root}>
-      <Link to="/genders/men" style={{ textDecoration: 'none' }}>
-        <Button>
-          <b className={classes.title}>MEN</b>
-        </Button>
-      </Link>
-      <div className={classes.gap} />
-      <Link to="/genders/women" style={{ textDecoration: 'none' }}>
-        <Button>
-          <b className={classes.title}>WOMEN</b>
-        </Button>
-      </Link>
-    </div>
-  );
+  useEffect(() => {
+    getGenders().then((res) => {
+      SetGenderApi(res.result);
+      SetGenderDP(res.result);
+    });
+  }, []);
+
+  const genderElements = gendersApi.map((item) => {
+    return (
+      <div className={classes.gap} key={item._id}>
+        <Link to={`/genders/${item.name}`} style={{ textDecoration: 'none' }}>
+          <Button>
+            <b className={classes.title}>{item.name}</b>
+          </Button>
+        </Link>
+      </div>
+    );
+  });
+
+  return <div className={classes.root}>{genderElements}</div>;
 }

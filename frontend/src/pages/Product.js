@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import {
@@ -12,6 +12,11 @@ import {
 } from '@material-ui/core';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
+import {
+  findProductById,
+  getStocksByProductId,
+} from '../services/ProductListGender';
+import { SelectIDContext } from '../context/SelectIDProvider';
 
 const useStyles = makeStyles({
   root: { marginTop: '2rem' },
@@ -48,7 +53,7 @@ const useStyles = makeStyles({
 const StyledToggleButtonGroup = withStyles((theme) => ({
   grouped: {
     margin: theme.spacing(1.5),
-    maxWidth: '50px',
+    maxWidth: '90px',
     maxHeight: '50px',
     minWidth: '50px',
     minHeight: '50px',
@@ -69,12 +74,49 @@ const StyledToggleButtonGroup = withStyles((theme) => ({
 
 export default function Product() {
   const classes = useStyles();
-  const { productId } = useParams();
+  const { productID } = useParams();
+  const { SelectIDState } = useContext(SelectIDContext);
+  const [productApi, SetProductApi] = useState([]);
+  const [stockApi, SetStockApi] = useState([]);
+  const [maxSelect, SetMaxSelect] = useState(0);
 
-  const [sizeSelect, setSizeSelect] = React.useState('');
+  const [sizeSelect, SetSizeSelect] = useState('');
+  const [countSelect, SetCountSelect] = useState(1);
+
   const handleAlignment = (event, newAlignment) => {
-    setSizeSelect(newAlignment);
+    SetSizeSelect(newAlignment);
+    SetCountSelect(1);
   };
+
+  const handleCountSelect = (e) => {
+    SetCountSelect(e.target.value);
+  };
+
+  useEffect(() => {
+    if (!SelectIDState.product) {
+      findProductById(productID).then((res) => {
+        SetProductApi(res.result);
+      });
+      getStocksByProductId(productID).then((res) => {
+        SetStockApi(res.result);
+      });
+    } else {
+      SetProductApi(SelectIDState.product);
+      getStocksByProductId(SelectIDState.product._id).then((res) => {
+        SetStockApi(res.result);
+      });
+    }
+  }, [SelectIDState.product]);
+
+  useEffect(() => {
+    stockApi.map((item) => {
+      if (item._id === sizeSelect) {
+        SetMaxSelect(item.quantity);
+      }
+    });
+  }, [sizeSelect]);
+
+  console.log(sizeSelect, SelectIDState, productApi, stockApi);
 
   return (
     <div className={classes.root}>
@@ -85,7 +127,8 @@ export default function Product() {
               <Card className={classes.card}>
                 <CardMedia
                   className={classes.cardMedia}
-                  image="https://image.uniqlo.com/UQ/ST3/th/imagesgoods/441000/item/thgoods_68_441000.jpg?width=1008&impolicy=quality_75"
+                  image={productApi.img}
+                  src="image"
                   title=""
                 />
               </Card>
@@ -93,15 +136,15 @@ export default function Product() {
           </Grid>
           <Grid item xs={12} sm={6} lg={5}>
             <Typography variant="h4">
-              <b>MEN เสื้อยืด Supima Cotton คอกลม แขนสั้น</b>
+              <b>{productApi.name}</b>
             </Typography>
             <br />
             <Typography variant="h5">
-              <b>THB 390.00</b>
+              <b>THB {productApi.prices}</b>
             </Typography>
             <br />
             <Typography variant="body1">
-              ผ้าคอตตอน Supima® 100% ให้ความรู้สึกนุ่ม ยืดหยุ่น และเป็นมันเงา
+              {productApi.shortDescription}
             </Typography>
             <br />
             <hr />
@@ -116,42 +159,31 @@ export default function Product() {
                 onChange={handleAlignment}
                 aria-label="text alignment"
               >
-                <ToggleButton
-                  value="s"
-                  disabled={false}
-                  style={{ backgroundColor: 'none' }}
-                >
-                  <Typography variant="body1" className={classes.fontColor}>
-                    <b>S</b>
-                  </Typography>
-                </ToggleButton>
-                <ToggleButton
-                  value="m"
-                  disabled={false}
-                  style={{ backgroundColor: 'none' }}
-                >
-                  <Typography variant="body1" className={classes.fontColor}>
-                    <b>M</b>
-                  </Typography>
-                </ToggleButton>
-                <ToggleButton
-                  value="l"
-                  disabled={false}
-                  style={{ backgroundColor: 'none' }}
-                >
-                  <Typography variant="body1" className={classes.fontColor}>
-                    <b>L</b>
-                  </Typography>
-                </ToggleButton>
-                <ToggleButton
-                  value="xl"
-                  disabled={true}
-                  style={{ backgroundColor: '#aaaaaa' }}
-                >
-                  <Typography variant="body1">
-                    <b>XL</b>
-                  </Typography>
-                </ToggleButton>
+                {stockApi.map((item) => {
+                  return item.quantity > 0 ? (
+                    <ToggleButton
+                      value={item._id}
+                      disabled={false}
+                      style={{ backgroundColor: 'none' }}
+                      key={item._id}
+                    >
+                      <Typography variant="body1" className={classes.fontColor}>
+                        <b>{item.size_id.name}</b>
+                      </Typography>
+                    </ToggleButton>
+                  ) : (
+                    <ToggleButton
+                      value={item._id}
+                      disabled={true}
+                      style={{ backgroundColor: '#aaaaaa' }}
+                      key={item._id}
+                    >
+                      <Typography variant="body1">
+                        <b>{item.size_id.name}</b>
+                      </Typography>
+                    </ToggleButton>
+                  );
+                })}
               </StyledToggleButtonGroup>
             </div>
             <br />
@@ -162,8 +194,10 @@ export default function Product() {
               <TextField
                 id="outlined-number"
                 type="number"
-                defaultValue={0}
-                InputProps={{ inputProps: { min: 0, max: 10 } }}
+                name="count"
+                value={countSelect}
+                onChange={handleCountSelect}
+                InputProps={{ inputProps: { min: 1, max: maxSelect } }}
                 variant="outlined"
                 className={classes.numberField}
               />
