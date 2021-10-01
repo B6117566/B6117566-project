@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
@@ -7,6 +7,8 @@ import Collapse from '@material-ui/core/Collapse';
 import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Typography from '@material-ui/core/Typography';
+import { getCategorysByGenderId } from '../../services/ProductListGender';
+import { SelectIDContext } from '../../context/SelectIDProvider';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,13 +32,75 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function Category() {
+export default function Category({ genderName }) {
   const classes = useStyles();
-  const [open, setOpen] = React.useState(false);
+  const { SelectIDState, SetGenderIDDP, SetCategoryDP } =
+    useContext(SelectIDContext);
+  const [categoryApi, SetCategoryApi] = useState([]);
+  const [open, setOpen] = useState({ Boolean });
 
-  const handleClick = () => {
-    setOpen(!open);
+  const handleClick = (e) => {
+    setOpen({ [e]: !open[e] });
   };
+
+  const handleSelectCategory = (id, name) => {
+    SetCategoryDP({ _id: id, name });
+  };
+
+  useEffect(() => {
+    SelectIDState.gender.map((item) => {
+      if (genderName === item.name) {
+        SetGenderIDDP(item._id);
+        getCategorysByGenderId(item._id).then((res) => {
+          SetCategoryApi(res.result);
+        });
+      }
+    });
+  }, [genderName]);
+
+  const categoryElement = categoryApi.map((categoryItem) => {
+    return (
+      <div key={categoryItem._id}>
+        <ListItem
+          button
+          className={classes.button}
+          onClick={() => {
+            handleClick(categoryItem.class.name);
+          }}
+        >
+          <ListItemText
+            primary={
+              <Typography variant="h6">{categoryItem.class.name}</Typography>
+            }
+          />
+          {open[categoryItem.class.name] ? <ExpandLess /> : <ExpandMore />}
+        </ListItem>
+        <Collapse
+          component="li"
+          in={open[categoryItem.class.name]}
+          timeout="auto"
+          unmountOnExit
+        >
+          <List disablePadding>
+            {categoryItem.category.map((sitem) => {
+              return (
+                <ListItem
+                  button
+                  className={classes.nested}
+                  key={sitem._id}
+                  onClick={() => {
+                    handleSelectCategory(sitem._id, sitem.name);
+                  }}
+                >
+                  <ListItemText key={sitem._id} primary={sitem.name} />
+                </ListItem>
+              );
+            })}
+          </List>
+        </Collapse>
+      </div>
+    );
+  });
 
   return (
     <List
@@ -44,29 +108,18 @@ export default function Category() {
       aria-labelledby="nested-list-subheader"
       className={classes.root}
     >
-      <ListItem button className={classes.button}>
+      <ListItem
+        button
+        className={classes.button}
+        onClick={() => {
+          handleSelectCategory(null, null);
+        }}
+      >
         <ListItemText
           primary={<Typography variant="h6">สินค้าทั้งหมด</Typography>}
         />
       </ListItem>
-      <ListItem button className={classes.button}>
-        <ListItemText
-          primary={<Typography variant="h6">เสื้อยืด</Typography>}
-        />
-      </ListItem>
-      <ListItem button className={classes.button} onClick={handleClick}>
-        <ListItemText primary={<Typography variant="h6">กางเกง</Typography>} />
-        {open ? <ExpandLess /> : <ExpandMore />}
-      </ListItem>
-      <Collapse in={open} timeout="auto" unmountOnExit>
-        <List component="div" disablePadding>
-          <ListItem button className={classes.nested}>
-            <ListItemText
-              primary={<Typography variant="h6">ขายาว</Typography>}
-            />
-          </ListItem>
-        </List>
-      </Collapse>
+      {categoryElement}
     </List>
   );
 }

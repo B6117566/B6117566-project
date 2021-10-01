@@ -73,7 +73,7 @@ function HomeCarousel() {
         {tutorialSteps.map((step, index) => (
           <div key={index}>
             {Math.abs(activeStep - index) <= 2 ? (
-              <img className={classes.img} alt='BANNER' src={step.imgPath} />
+              <img className={classes.img} alt='BANNER' src={step.imgPath} loading='lazy'/>
             ) : null}
           </div>
         ))}
