@@ -85,6 +85,19 @@ async function getStocksByProductId(product_id) {
   });
 }
 
+async function insertCart(body) {
+  return new Promise((resolve) => {
+    axios
+      .post(`cart`, body)
+      .then((res) => {
+        resolve(res);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  });
+}
+
 export {
   getGenders,
   getCategorysByGenderId,
@@ -92,4 +105,5 @@ export {
   getProductsAllByCategoryGender,
   findProductById,
   getStocksByProductId,
+  insertCart,
 };

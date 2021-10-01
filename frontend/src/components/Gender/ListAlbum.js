@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import CardMedia from '@material-ui/core/CardMedia';
@@ -13,6 +13,7 @@ import {
   getProductsAllByGender,
   getProductsAllByCategoryGender,
 } from '../../services/ProductListGender';
+import { AlertProductContext } from '../../pages/Gender';
 
 const useStyles = makeStyles((theme) => ({
   cardGrid: {
@@ -34,6 +35,19 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
+function usePrevious(value) {
+  const ref = useRef();
+  useEffect(() => {
+    ref.current = value;
+  });
+  return ref.current;
+}
+
+const useHasChanged = (val) => {
+  const prevVal = usePrevious(val);
+  return prevVal !== val;
+};
+
 export default function ListAlbum({ genderName }) {
   const classes = useStyles();
   const navigate = useNavigate();
@@ -42,71 +56,90 @@ export default function ListAlbum({ genderName }) {
   const [productListShow, SetProductListShow] = useState([]);
   const [loadMore, SetLoadMore] = useState(0);
   const [lengthList, SetLengthList] = useState(0);
+  const { handleErrorProductShow, SetNameCategoryAlert } =
+    useContext(AlertProductContext);
+  const genderChanged = useHasChanged(genderName);
 
   const handlechangeLoadMore = () => {
     SetLoadMore(loadMore + 1);
   };
 
   useEffect(() => {
-    SelectIDState.gender.map((item) => {
-      if (genderName === item.name) {
-        getProductsAllByGender(item._id).then((res) => {
-          SetProductListShow(res.result);
-          SetLengthList(res.result.length);
-          SetLoadMore(0);
-        });
-      }
-    });
-  }, [genderName, !SelectIDState.category._id]);
-
-  useEffect(() => {
-    if (SelectIDState.category._id) {
-      getProductsAllByCategoryGender(SelectIDState.category._id)
-        .then((res) => {
-          SetProductListShow(res.result);
-          SetLengthList(res.result.length);
-          SetLoadMore(0);
-        })
-        .catch((err) => {
-          console.error(
-            'ระบบไม่สามารถขอรายการ',
-            SelectIDState.category.name,
-            'ได้'
-          );
-          SetCategoryDP({ id: null, name: null });
-        });
-    }
-  }, [SelectIDState.category._id]);
-
-  useEffect(() => {
-    if (!SelectIDState.category._id && loadMore > 0) {
-      getProductsAllByGender(
-        `${SelectIDState.gender_id}?offset=${loadMore * lengthList}`
-      ).then((res) => {
-        SetProductListShow([...productListShow, ...res.result]);
-        if (res.result.length < lengthList) {
-          SetLengthList(0);
+    if (genderChanged) {
+      SetCategoryDP({ id: null, name: null });
+      SelectIDState.gender.map((item) => {
+        if (genderName === item.name) {
+          getProductsAllByGender(item._id).then((res) => {
+            SetProductListShow(res.result);
+            SetLengthList(res.result.length);
+            SetLoadMore(0);
+          });
         }
       });
-    } else if (SelectIDState.category._id && loadMore > 0) {
-      getProductsAllByCategoryGender(
-        `${SelectIDState.category._id}?offset=${loadMore * lengthList}`
-      )
-        .then((res) => {
+    } else {
+      if (!SelectIDState.category._id) {
+        SelectIDState.gender.map((item) => {
+          if (genderName === item.name) {
+            getProductsAllByGender(item._id).then((res) => {
+              SetProductListShow(res.result);
+              SetLengthList(res.result.length);
+              SetLoadMore(0);
+            });
+          }
+        });
+      } else {
+        getProductsAllByCategoryGender(SelectIDState.category._id)
+          .then((res) => {
+            SetProductListShow(res.result);
+            SetLengthList(res.result.length);
+            SetLoadMore(0);
+          })
+          .catch((err) => {
+            console.error(
+              'ระบบไม่สามารถขอรายการ',
+              SelectIDState.category.name,
+              'ได้'
+            );
+            SetNameCategoryAlert(SelectIDState.category.name);
+            handleErrorProductShow();
+            SetCategoryDP({ id: null, name: null });
+          });
+      }
+    }
+  }, [genderName, SelectIDState.category._id]);
+
+  useEffect(() => {
+    if (loadMore > 0) {
+      if (!SelectIDState.category._id) {
+        getProductsAllByGender(
+          `${SelectIDState.gender_id}?offset=${loadMore * lengthList}`
+        ).then((res) => {
           SetProductListShow([...productListShow, ...res.result]);
-          if (res.result.length <= lengthList) {
+          if (res.result.length < lengthList) {
             SetLengthList(0);
           }
-          console.log(res.result.length, lengthList);
-        })
-        .catch((err) => {
-          console.error(
-            'ระบบไม่สามารถขอรายการ',
-            SelectIDState.category.name,
-            'ได้'
-          );
-          SetCategoryDP({ id: null, name: null });
         });
+      } else {
+        getProductsAllByCategoryGender(
+          `${SelectIDState.category._id}?offset=${loadMore * lengthList}`
+        )
+          .then((res) => {
+            SetProductListShow([...productListShow, ...res.result]);
+            if (res.result.length <= lengthList) {
+              SetLengthList(0);
+            }
+          })
+          .catch((err) => {
+            console.error(
+              'ระบบไม่สามารถขอรายการ',
+              SelectIDState.category.name,
+              'ได้'
+            );
+            SetNameCategoryAlert(SelectIDState.category.name);
+            handleErrorProductShow();
+            SetCategoryDP({ id: null, name: null });
+          });
+      }
     }
   }, [loadMore]);
 
@@ -154,7 +187,7 @@ export default function ListAlbum({ genderName }) {
             onClick={handlechangeLoadMore}
           >
             <Typography variant="h6">
-              <b>โหลดเพิ่มเติม</b>
+              <b>แสดงสินค้าเพิ่มเติม</b>
             </Typography>
           </Button>
         </div>
@@ -166,7 +199,7 @@ export default function ListAlbum({ genderName }) {
             marginTop: '1rem',
           }}
         >
-          <b>สิ้นสุดการค้นหา</b>
+          <b>สิ้นสุดการแสดงสินค้า</b>
         </div>
       )}
     </Container>

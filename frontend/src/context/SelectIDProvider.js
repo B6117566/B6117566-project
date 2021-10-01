@@ -16,8 +16,8 @@ const Reducer = (state, action) => {
       };
     case 'SET_GENDER_ID':
       return {
-        ...state, // copy state
-        gender_id: action.payload, // set state
+        ...state,
+        gender_id: action.payload,
       };
     case 'SET_CATEGORY':
       return {

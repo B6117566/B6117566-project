@@ -1,7 +1,8 @@
-import React, { useContext } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import { Container, Typography } from '@material-ui/core';
+import { Alert, AlertTitle } from '@material-ui/lab';
 import Category from '../components/Gender/Category';
 import ListAlbum from '../components/Gender/ListAlbum';
 import About from '../components/HomePage/About';
@@ -20,13 +21,26 @@ const useStyles = makeStyles({
   },
 });
 
+const AlertProductContext = createContext();
+
 export default function Gender() {
   const classes = useStyles();
   const { genderName } = useParams();
   const { SelectIDState } = useContext(SelectIDContext);
+  const [alertShow, SetAlertShow] = useState(false);
+  const [nameCategoryAlert, SetNameCategoryAlert] = useState('');
+
+  function handleErrorProductShow() {
+    SetAlertShow(true);
+    setTimeout(() => {
+      SetAlertShow(false);
+    }, 3000);
+  }
 
   return (
-    <>
+    <AlertProductContext.Provider
+      value={{ handleErrorProductShow, SetNameCategoryAlert }}
+    >
       <Container className={classes.root}>
         <div className={classes.propertyShow}>
           <Typography
@@ -58,6 +72,26 @@ export default function Gender() {
             </Typography>
             <hr />
           </div>
+          {alertShow ? (
+            <Alert
+              severity="error"
+              style={{
+                zIndex: '1',
+                position: 'fixed',
+                marginTop: '0.7rem',
+                boxShadow: '0 3px 7px 0 rgba(0, 0, 0, 0.2)',
+              }}
+            >
+              <AlertTitle>Error</AlertTitle>
+              แสดงสินค้า{' '}
+              <b>
+                <u>{nameCategoryAlert}</u>
+              </b>{' '}
+              ไม่สำเร็จ — <strong>กรุณาลองอีกครั้ง</strong>
+            </Alert>
+          ) : (
+            <></>
+          )}
         </div>
         <div className={classes.propertyShow}>
           <Category genderName={genderName} />
@@ -65,6 +99,8 @@ export default function Gender() {
         </div>
       </Container>
       <About />
-    </>
+    </AlertProductContext.Provider>
   );
 }
+
+export { AlertProductContext };
