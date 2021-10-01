@@ -47,7 +47,7 @@ const userSchema = Schema(
       required: [true, 'Enter an phone number!'],
       validate: {
         validator: function (v) {
-          return /^(\d{3})-(\d{3})-(\d{4})$/.test(v);
+          return /^\d{10}$/.test(v);
         },
         message: 'Enter a valid phone number format! xxx-xxx-xxxx',
       },
@@ -72,7 +72,7 @@ const userSchema = Schema(
 
 //schema middleware to apply before saving
 userSchema.pre('save', async function (next) {
-  this.password = await bcrypt.hash(this.password, process.env.HASH_SALT_ROUND);
+  this.password = await bcrypt.hash(this.password, Number(process.env.HASH_SALT_ROUND));
   next();
 });
 

@@ -13,7 +13,7 @@ const fgetStocksByProductId = async (product_id) => {
           reject(new Error('cannot get Stocks by Product id'));
         }
       }
-    })
+    }).limit(6)
       .populate('size_id')
       .lean();
   });

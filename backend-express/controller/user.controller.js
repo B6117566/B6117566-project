@@ -190,27 +190,27 @@ module.exports = {
     ffindUserRole('user')
       .then((resultUserRole) => {
         payload.userRole_id = resultUserRole._id;
+        finsertUser(payload)
+          .then((result) => {
+            res.status(201).json({
+              sucessful: true,
+              result: result,
+            });
+          })
+          .catch((err) => {
+            if (errorController(err, req, res)) {
+              res.status(400).json({
+                sucessful: false,
+                result: { messages: String(err) },
+              });
+            }
+          });
       })
       .catch((err) => {
         return res.status(500).json({
           sucessful: false,
           result: { messages: String(err) },
         });
-      });
-    finsertUser(payload)
-      .then((result) => {
-        res.status(201).json({
-          sucessful: true,
-          result: result,
-        });
-      })
-      .catch((err) => {
-        if (errorController(err, req, res)) {
-          res.status(400).json({
-            sucessful: false,
-            result: { messages: String(err) },
-          });
-        }
       });
   },
   deleteUser: function (req, res, next) {
