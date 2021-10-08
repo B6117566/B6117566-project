@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { IconButton, Badge, MenuItem, Menu } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ShoppingCartOutlinedIcon from '@material-ui/icons/ShoppingCartOutlined';
 import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined';
+import { GlobalContext } from '../../context/GlobalProvider';
+import { getUserRoleOfUser } from '../../services/UserRole';
 
 const useStyles = makeStyles(() => ({
   marginBorder: {
@@ -13,6 +15,9 @@ const useStyles = makeStyles(() => ({
 
 function MainMenuManageIcon() {
   const classes = useStyles();
+  let navigate = useNavigate();
+  const { GlobalState, SetAuthorPartDP, SetUserLoginDP } =
+    useContext(GlobalContext);
   const menuId = 'primary-search-account-menu';
   const [anchorEl, setAnchorEl] = React.useState(null);
   const isMenuOpen = Boolean(anchorEl);
@@ -40,11 +45,37 @@ function MainMenuManageIcon() {
           บัญชีของฉัน
         </MenuItem>
       </Link>
-      <Link to="/signout" style={{ textDecoration: 'none', color: 'black' }}>
-        <MenuItem id="signout" onClick={handleMenuClose}>
-          ออกจากระบบ
-        </MenuItem>
-      </Link>
+
+      <MenuItem
+        id="signout"
+        onClick={async () => {
+          handleMenuClose();
+          const userNull = {
+            _id: null,
+            firstname: null,
+            lastname: null,
+            userRole: {
+              _id: null,
+              role: null,
+            },
+            token: null,
+            isAuthen: false,
+          };
+          localStorage.setItem('user', JSON.stringify(userNull));
+          SetUserLoginDP(userNull);
+
+          try {
+            const data = await getUserRoleOfUser();
+            SetAuthorPartDP(data.result.authorizationPart);
+          } catch (error) {
+            SetAuthorPartDP(null);
+          }
+
+          navigate('/');
+        }}
+      >
+        ออกจากระบบ
+      </MenuItem>
     </Menu>
   );
 
@@ -53,23 +84,42 @@ function MainMenuManageIcon() {
       <div>
         <Link to="/cart" style={{ textDecoration: 'none', color: 'black' }}>
           <IconButton aria-label="show 4 new mails" color="inherit">
-            <Badge badgeContent={5} color="secondary">
+            <Badge badgeContent={0} color="secondary">
               <ShoppingCartOutlinedIcon />
             </Badge>
           </IconButton>
         </Link>
-        <IconButton
-          edge="end"
-          aria-label="account of current user"
-          aria-controls={menuId}
-          aria-haspopup="true"
-          onClick={handleProfileMenuOpen}
-          color="inherit"
-        >
-          <AccountCircleOutlinedIcon />
-        </IconButton>
+        {GlobalState.user.isAuthen ? (
+          <>
+            <IconButton
+              edge="end"
+              aria-label="account of current user"
+              aria-controls={menuId}
+              aria-haspopup="true"
+              onClick={handleProfileMenuOpen}
+              color="inherit"
+            >
+              <AccountCircleOutlinedIcon />
+            </IconButton>
+            {renderMenu}
+          </>
+        ) : (
+          <Link
+            to="/auth/signin"
+            style={{ textDecoration: 'none', color: 'black' }}
+          >
+            <IconButton
+              edge="end"
+              aria-label="account of current user"
+              aria-controls={menuId}
+              aria-haspopup="true"
+              color="inherit"
+            >
+              <AccountCircleOutlinedIcon />
+            </IconButton>
+          </Link>
+        )}
       </div>
-      {renderMenu}
     </div>
   );
 }
