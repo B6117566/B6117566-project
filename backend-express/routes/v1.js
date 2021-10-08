@@ -12,6 +12,7 @@ router.use("/gender", require("../api/gender"));
 router.use("/class", require("../api/class"));
 router.use("/category", require("../api/category"));
 router.use("/cart", require("../api/cart"));
+router.use("/auth", require("../api/auth"));
 router.use("/address", require("../api/address"));
 
 module.exports = router;
