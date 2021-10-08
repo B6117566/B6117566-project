@@ -6,7 +6,7 @@ import { Alert, AlertTitle } from '@material-ui/lab';
 import Category from '../components/Gender/Category';
 import ListAlbum from '../components/Gender/ListAlbum';
 import About from '../components/HomePage/About';
-import { SelectIDContext } from '../context/SelectIDProvider';
+import { GlobalContext } from '../context/GlobalProvider';
 
 const useStyles = makeStyles({
   root: {
@@ -26,7 +26,7 @@ const AlertProductContext = createContext();
 export default function Gender() {
   const classes = useStyles();
   const { genderName } = useParams();
-  const { SelectIDState } = useContext(SelectIDContext);
+  const { GlobalState } = useContext(GlobalContext);
   const [alertShow, SetAlertShow] = useState(false);
   const [nameCategoryAlert, SetNameCategoryAlert] = useState('');
 
@@ -36,7 +36,7 @@ export default function Gender() {
       SetAlertShow(false);
     }, 3000);
   }
-
+  console.log(GlobalState)
   return (
     <AlertProductContext.Provider
       value={{ handleErrorProductShow, SetNameCategoryAlert }}
@@ -68,7 +68,7 @@ export default function Gender() {
               }}
               variant="h6"
             >
-              {SelectIDState.category.name || 'สินค้าทั้งหมด'}
+              {GlobalState.category.name || 'สินค้าทั้งหมด'}
             </Typography>
             <hr />
           </div>

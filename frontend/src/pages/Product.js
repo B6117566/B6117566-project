@@ -20,7 +20,7 @@ import {
   getStocksByProductId,
   insertCart,
 } from '../services/ProductListGender';
-import { SelectIDContext } from '../context/SelectIDProvider';
+import { GlobalContext } from '../context/GlobalProvider';
 
 const useStyles = makeStyles({
   root: { marginTop: '2rem' },
@@ -84,7 +84,7 @@ export default function Product() {
   const classes = useStyles();
   const { productID } = useParams();
   const navigate = useNavigate();
-  const { SelectIDState } = useContext(SelectIDContext);
+  const { GlobalState } = useContext(GlobalContext);
   const [productApi, SetProductApi] = useState([]);
   const [stockApi, SetStockApi] = useState([]);
   const [countSelectArray, SetCountSelectArray] = useState([]);
@@ -135,16 +135,16 @@ export default function Product() {
         SetStockApi(res.result);
       });
     }
-    if (!SelectIDState.product) {
+    if (!GlobalState.product) {
       findProductById(productID).then((res) => {
         SetProductApi(res.result);
       });
       getStocks(productID);
     } else {
-      SetProductApi(SelectIDState.product);
-      getStocks(SelectIDState.product._id);
+      SetProductApi(GlobalState.product);
+      getStocks(GlobalState.product._id);
     }
-  }, [SelectIDState.product]);
+  }, [GlobalState.product]);
 
   useEffect(() => {
     if (!sizeSelect) {
@@ -163,15 +163,6 @@ export default function Product() {
       SetButtonSelect(false);
     }
   }, [sizeSelect]);
-
-  console.log(
-    countSelectArray,
-    countSelect,
-    sizeSelect,
-    SelectIDState,
-    productApi,
-    stockApi
-  );
 
   return (
     <div className={classes.root}>

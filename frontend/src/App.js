@@ -1,16 +1,11 @@
-import React, { Suspense } from 'react';
-import { useRoutes } from 'react-router-dom';
-import SimpleBackdrop from './components/SimpleBackdrop';
-import routes from './routes/routes';
+import React from 'react';
+import Router from './routes/routes';
+import { GlobalStateProvider } from './context/GlobalProvider';
 
-function App() {
-  const routing = useRoutes(routes);
-
+export default function App() {
   return (
-    <>
-      <Suspense fallback={<SimpleBackdrop />}>{routing}</Suspense>
-    </>
+    <GlobalStateProvider>
+      <Router />
+    </GlobalStateProvider>
   );
 }
-
-export default App;

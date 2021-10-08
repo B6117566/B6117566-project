@@ -1,36 +1,53 @@
-import React, { lazy } from 'react';
-import { Navigate } from 'react-router-dom';
+import React, { lazy, Suspense } from 'react';
+import { Navigate, Routes, Route } from 'react-router-dom';
+import PrivateRoute from './PrivateRoute';
+import SimpleBackdrop from '../components/SimpleBackdrop';
 
 //Layout
-const MainLayout = lazy(() => import('../layouts/MainLayout'));
-const BlankLayout = lazy(() => import('../layouts/BlankLayout'));
+import MainLayout from '../layouts/MainLayout';
+import BlankLayout from '../layouts/BlankLayout';
 
 //Page
+import NotFound from '../pages/NotFound';
 const HomePage = lazy(() => import('../pages/HomePage'));
-const NotFound = lazy(() => import('../pages/NotFound'));
 const Product = lazy(() => import('../pages/Product'));
 const Gender = lazy(() => import('../pages/Gender'));
+const Cart = lazy(() => import('../pages/Cart'));
+const SignIn = lazy(() => import('../pages/SignIn'));
+const SignUp = lazy(() => import('../pages/SignUp'));
 
-const routes = [
-  {
-    path: '/',
-    element: <MainLayout />,
-    children: [
-      { path: '/', element: <HomePage /> },
-      { path: '/genders/:genderName', element: <Gender /> },
-      { path: '/products/:productID', element: <Product /> },
-      { path: '*', element: <Navigate to="/404" /> },
-    ],
-  },
-  /* {
-    path: '/auth',
-    element: <AuthLayout />,
-    children: [
-      { path: 'login', element: <Login /> },
-      { path: 'register', element: <Register /> },
-      { path: '*', element: <Navigate to="/404" /> },
-    ],
-  },
+const SuspenseLazy = (component) => {
+  return <Suspense fallback={<SimpleBackdrop />}>{component}</Suspense>;
+};
+
+export default function Router() {
+  return (
+    <Routes>
+      <Route path="/" element={<MainLayout />}>
+        <Route path="/" element={SuspenseLazy(<HomePage />)} />
+        <Route path="/genders/:genderName" element={SuspenseLazy(<Gender />)} />
+        <Route
+          path="/products/:productID"
+          element={SuspenseLazy(<Product />)}
+        />
+        <PrivateRoute path="/cart" element={SuspenseLazy(<Cart />)} />
+        <Route path="*" element={<Navigate to="/404" />} />
+      </Route>
+
+      <Route path="/auth/" element={<BlankLayout />}>
+        <Route path="/" element={<Navigate to="/404" />} />
+        <Route path="/signin" element={SuspenseLazy(<SignIn />)} />
+        <Route path="/signup" element={SuspenseLazy(<SignUp />)} />
+        <Route path="*" element={<Navigate to="/404" />} />
+      </Route>
+
+      <Route path="/404" element={<BlankLayout />}>
+        <Route path="/" element={<NotFound />} />
+        <Route path="*" element={<Navigate to="/404" />} />
+      </Route>
+    </Routes>
+
+    /* 
   {
     path: '/dashboard',
     element: <DashboardLayout />,
@@ -43,14 +60,5 @@ const routes = [
       { path: '*', element: <Navigate to="/404" /> },
     ],
   }, */
-  {
-    path: '/404',
-    element: <BlankLayout />,
-    children: [
-      { path: '/', element: <NotFound /> },
-      { path: '*', element: <Navigate to="/404" /> },
-    ],
-  },
-];
-
-export default routes;
+  );
+}

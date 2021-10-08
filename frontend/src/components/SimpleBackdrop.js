@@ -6,8 +6,8 @@ import { Typography } from '@material-ui/core';
 
 const useStyles = makeStyles((theme) => ({
   backdrop: {
-    zIndex: theme.zIndex.drawer + 1,
-    backgroundColor: 'rgba(255,255,255,0.0)',
+    zIndex: 0,
+    backgroundColor: 'rgba(255,255,255,0.3)',
   },
   show: {
     display: 'flex',
