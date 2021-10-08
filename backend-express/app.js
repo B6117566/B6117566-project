@@ -1,14 +1,11 @@
 require('dotenv').config({ path: '../.env' });
 const expressFunction = require('express');
 const expressApp = expressFunction();
-const cors = require('cors');
 const bodyParser = require('body-parser');
 const database = require('./config/database');
 //--------------------------------------------------------------------------
 
 //middleware
-expressApp.use(cors());
-
 expressApp.use((req, res, next) => {
   res.setHeader(
     'Access-Control-Allow-Origin',
