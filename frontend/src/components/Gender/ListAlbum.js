@@ -8,7 +8,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
 import { CardActionArea, Button } from '@material-ui/core';
 import { useNavigate } from 'react-router-dom';
-import { SelectIDContext } from '../../context/SelectIDProvider';
+import { GlobalContext } from '../../context/GlobalProvider';
 import {
   getProductsAllByGender,
   getProductsAllByCategoryGender,
@@ -51,8 +51,8 @@ const useHasChanged = (val) => {
 export default function ListAlbum({ genderName }) {
   const classes = useStyles();
   const navigate = useNavigate();
-  const { SelectIDState, SetProductDP, SetCategoryDP } =
-    useContext(SelectIDContext);
+  const { GlobalState, SetProductDP, SetCategoryDP } =
+    useContext(GlobalContext);
   const [productListShow, SetProductListShow] = useState([]);
   const [loadMore, SetLoadMore] = useState(0);
   const [lengthList, SetLengthList] = useState(0);
@@ -67,7 +67,7 @@ export default function ListAlbum({ genderName }) {
   useEffect(() => {
     if (genderChanged) {
       SetCategoryDP({ id: null, name: null });
-      SelectIDState.gender.map((item) => {
+      GlobalState.gender.map((item) => {
         if (genderName === item.name) {
           getProductsAllByGender(item._id).then((res) => {
             SetProductListShow(res.result);
@@ -77,8 +77,8 @@ export default function ListAlbum({ genderName }) {
         }
       });
     } else {
-      if (!SelectIDState.category._id) {
-        SelectIDState.gender.map((item) => {
+      if (!GlobalState.category._id) {
+        GlobalState.gender.map((item) => {
           if (genderName === item.name) {
             getProductsAllByGender(item._id).then((res) => {
               SetProductListShow(res.result);
@@ -88,7 +88,7 @@ export default function ListAlbum({ genderName }) {
           }
         });
       } else {
-        getProductsAllByCategoryGender(SelectIDState.category._id)
+        getProductsAllByCategoryGender(GlobalState.category._id)
           .then((res) => {
             SetProductListShow(res.result);
             SetLengthList(res.result.length);
@@ -97,22 +97,22 @@ export default function ListAlbum({ genderName }) {
           .catch((err) => {
             console.error(
               'ระบบไม่สามารถขอรายการ',
-              SelectIDState.category.name,
+              GlobalState.category.name,
               'ได้'
             );
-            SetNameCategoryAlert(SelectIDState.category.name);
+            SetNameCategoryAlert(GlobalState.category.name);
             handleErrorProductShow();
             SetCategoryDP({ id: null, name: null });
           });
       }
     }
-  }, [genderName, SelectIDState.category._id]);
+  }, [genderName, GlobalState.category._id]);
 
   useEffect(() => {
     if (loadMore > 0) {
-      if (!SelectIDState.category._id) {
+      if (!GlobalState.category._id) {
         getProductsAllByGender(
-          `${SelectIDState.gender_id}?offset=${loadMore * lengthList}`
+          `${GlobalState.gender_id}?offset=${loadMore * lengthList}`
         ).then((res) => {
           SetProductListShow([...productListShow, ...res.result]);
           if (res.result.length < lengthList) {
@@ -121,7 +121,7 @@ export default function ListAlbum({ genderName }) {
         });
       } else {
         getProductsAllByCategoryGender(
-          `${SelectIDState.category._id}?offset=${loadMore * lengthList}`
+          `${GlobalState.category._id}?offset=${loadMore * lengthList}`
         )
           .then((res) => {
             SetProductListShow([...productListShow, ...res.result]);
@@ -132,10 +132,10 @@ export default function ListAlbum({ genderName }) {
           .catch((err) => {
             console.error(
               'ระบบไม่สามารถขอรายการ',
-              SelectIDState.category.name,
+              GlobalState.category.name,
               'ได้'
             );
-            SetNameCategoryAlert(SelectIDState.category.name);
+            SetNameCategoryAlert(GlobalState.category.name);
             handleErrorProductShow();
             SetCategoryDP({ id: null, name: null });
           });

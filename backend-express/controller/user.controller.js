@@ -4,7 +4,6 @@ const validator = require('validator');
 const key = process.env.JWT_SECRETKEY;
 
 const User = require('../model/user.model');
-const { ffindUserRole } = require('../controller/userrole.controller');
 const errorController = require('./error.controller');
 
 //------------------------------------------------------------------
@@ -52,9 +51,7 @@ const ffindUserById = async (id) => {
         }
       }
     })
-      .select(
-        '_id email password firstname lastname phone addressDetail address_id'
-      )
+      .select('-userRole_id')
       .populate({
         path: 'address_id',
         model: 'Address',
@@ -140,16 +137,17 @@ module.exports = {
         _id: resultUser._id,
         firstname: resultUser.firstname,
         lastname: resultUser.lastname,
+        userRole: resultUser.userRole_id,
       };
 
       if (loginStatus) {
         const token = jwt.sign(resultSend, key, { expiresIn: 60 * 60 });
         res.status(200).json({
           sucessful: true,
-          result: { resultSend, token },
+          result: { ...resultSend, token },
         });
       } else {
-        res.status(400).json({
+        res.status(401).json({
           sucessful: false,
         });
       }
@@ -187,16 +185,6 @@ module.exports = {
   signupUser: function (req, res, next) {
     const payload = new User(req.body);
 
-    ffindUserRole('user')
-      .then((resultUserRole) => {
-        payload.userRole_id = resultUserRole._id;
-      })
-      .catch((err) => {
-        return res.status(500).json({
-          sucessful: false,
-          result: { messages: String(err) },
-        });
-      });
     finsertUser(payload)
       .then((result) => {
         res.status(201).json({

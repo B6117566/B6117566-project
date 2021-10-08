@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Button, makeStyles } from '@material-ui/core';
 import { Link } from 'react-router-dom';
 import { getGenders } from '../../services/ProductListGender';
-import { SelectIDContext } from '../../context/SelectIDProvider';
+import { GlobalContext } from '../../context/GlobalProvider';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -19,7 +19,7 @@ const useStyles = makeStyles(() => ({
 export default function MainMenuSelectIcon() {
   const classes = useStyles();
   const [gendersApi, SetGenderApi] = useState([]);
-  const { SetGenderDP } = useContext(SelectIDContext);
+  const { SetGenderDP } = useContext(GlobalContext);
 
   useEffect(() => {
     getGenders().then((res) => {

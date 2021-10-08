@@ -1,4 +1,5 @@
 const Category = require('../model/category.model');
+const mongoose = require('mongoose');
 const errorController = require('./error.controller');
 
 const fgetCategorys = async () => {
@@ -22,17 +23,41 @@ const fgetCategorys = async () => {
 
 const fgetCategorysByGenderId = async (gender_id) => {
   return new Promise((resolve, reject) => {
-    Category.find({ gender_id: gender_id }, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        if (data.length) {
-          resolve(data);
+    Category.aggregate(
+      [
+        {
+          $match: { gender_id: mongoose.Types.ObjectId(gender_id) },
+        },
+        {
+          $group: {
+            _id: '$class_id',
+            category: { $push: { _id: '$_id', name: '$name' } },
+          },
+        },
+        {
+          $lookup: {
+            from: 'Class',
+            localField: '_id',
+            foreignField: '_id',
+            as: 'class',
+          },
+        },
+        { $unwind: '$class' },
+        { $project: { 'class._id': 0 } },
+        { $sort: { 'category.name': -1 } },
+      ],
+      (err, data) => {
+        if (err) {
+          reject(err);
         } else {
-          reject(new Error('cannot find Categorys By Gender id'));
+          if (data.length) {
+            resolve(data);
+          } else {
+            reject(new Error('cannot find Categorys in Class By Gender id'));
+          }
         }
       }
-    }).lean();
+    );
   });
 };
 

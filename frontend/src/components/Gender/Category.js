@@ -8,7 +8,7 @@ import ExpandLess from '@material-ui/icons/ExpandLess';
 import ExpandMore from '@material-ui/icons/ExpandMore';
 import Typography from '@material-ui/core/Typography';
 import { getCategorysByGenderId } from '../../services/ProductListGender';
-import { SelectIDContext } from '../../context/SelectIDProvider';
+import { GlobalContext } from '../../context/GlobalProvider';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -34,8 +34,8 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Category({ genderName }) {
   const classes = useStyles();
-  const { SelectIDState, SetGenderIDDP, SetCategoryDP } =
-    useContext(SelectIDContext);
+  const { GlobalState, SetGenderIDDP, SetCategoryDP } =
+    useContext(GlobalContext);
   const [categoryApi, SetCategoryApi] = useState([]);
   const [open, setOpen] = useState({ Boolean });
 
@@ -48,7 +48,7 @@ export default function Category({ genderName }) {
   };
 
   useEffect(() => {
-    SelectIDState.gender.map((item) => {
+    GlobalState.gender.map((item) => {
       if (genderName === item.name) {
         SetGenderIDDP(item._id);
         getCategorysByGenderId(item._id).then((res) => {
