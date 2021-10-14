@@ -2,7 +2,7 @@ import React from 'react';
 import { Container, Typography } from '@material-ui/core';
 import { makeStyles } from '@material-ui/core/styles';
 import HomeCarousel from '../components/HomePage/HomeCarousel';
-import About from '../components/HomePage/About';
+
 const useStyles = makeStyles({
   root: {
     display: 'flex',
@@ -12,11 +12,6 @@ const useStyles = makeStyles({
   title: {
     marginTop: '1.5rem',
     marginBottom: '1rem',
-  },
-  footer: {
-    position: 'absolute',
-    bottom: 0,
-    width: '100%',
   },
 });
 
@@ -32,9 +27,6 @@ function HomePage() {
           </Typography>
           <HomeCarousel />
         </Container>
-        <div className={classes.footer}>
-          <About />
-        </div>
       </div>
     </>
   );

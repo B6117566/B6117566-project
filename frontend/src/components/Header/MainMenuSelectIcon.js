@@ -22,10 +22,14 @@ export default function MainMenuSelectIcon() {
   const { SetGenderDP } = useContext(GlobalContext);
 
   useEffect(() => {
-    getGenders().then((res) => {
-      SetGenderApi(res.result);
-      SetGenderDP(res.result);
-    });
+    getGenders()
+      .then((res) => {
+        SetGenderApi(res.result);
+        SetGenderDP(res.result);
+      })
+      .catch(() => {
+        SetGenderApi([]);
+      });
   }, []);
 
   const genderElements = gendersApi.map((item) => {

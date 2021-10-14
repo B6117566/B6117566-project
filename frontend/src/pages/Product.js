@@ -92,6 +92,7 @@ export default function Product() {
   const [alertShow, SetAlertShow] = useState(false);
   const [alertSelect, SetAlertSelect] = useState(false);
 
+  const [cartState, SetCartState] = useState(false);
   const [sizeSelect, SetSizeSelect] = useState(null);
   const [countSelect, SetCountSelect] = useState(1);
 
@@ -105,46 +106,59 @@ export default function Product() {
   };
 
   const handleOnClickAddCart = () => {
-    if (sizeSelect && countSelect > 0) {
-      const data = {
-        quantity: Number(countSelect),
-        stock_id: sizeSelect,
-        user_id: '614db408b2322647f01ea953',
-      };
-      insertCart(data).then((res) => {
-        if (res.status === 201) {
-          SetAlertShow(true);
-          SetAlertSelect(true);
-          setTimeout(() => {
-            SetAlertShow(false);
-          }, 4000);
-        } else {
-          SetAlertShow(true);
-          SetAlertSelect(false);
-          setTimeout(() => {
-            SetAlertShow(false);
-          }, 4000);
-        }
-      });
+    if (GlobalState.user.isAuthen) {
+      if (sizeSelect) {
+        const data = {
+          quantity: Number(countSelect),
+          stock_id: sizeSelect,
+          user_id: GlobalState.user._id,
+        };
+        insertCart(data).then((res) => {
+          if (res.status === 201) {
+            SetAlertShow(true);
+            SetAlertSelect(true);
+            setTimeout(() => {
+              SetAlertShow(false);
+            }, 4000);
+            SetCartState((prev) => !prev);
+          } else {
+            SetAlertShow(true);
+            SetAlertSelect(false);
+            setTimeout(() => {
+              SetAlertShow(false);
+            }, 4000);
+          }
+        });
+      }
+    } else {
+      navigate(`/auth/signin`);
     }
   };
 
   useEffect(() => {
     function getStocks(id) {
-      getStocksByProductId(id).then((res) => {
-        SetStockApi(res.result);
-      });
+      getStocksByProductId(id)
+        .then((res) => {
+          SetStockApi(res.result);
+        })
+        .catch(() => {
+          SetStockApi([]);
+        });
     }
     if (!GlobalState.product) {
-      findProductById(productID).then((res) => {
-        SetProductApi(res.result);
-      });
+      findProductById(productID)
+        .then((res) => {
+          SetProductApi(res.result);
+        })
+        .catch(() => {
+          SetProductApi([]);
+        });
       getStocks(productID);
     } else {
       SetProductApi(GlobalState.product);
       getStocks(GlobalState.product._id);
     }
-  }, [GlobalState.product]);
+  }, [GlobalState.product, cartState]);
 
   useEffect(() => {
     if (!sizeSelect) {
@@ -171,16 +185,30 @@ export default function Product() {
           alertSelect ? (
             <Alert
               severity="success"
-              style={{ zIndex: '1', position: 'fixed' }}
+              style={{
+                zIndex: '1',
+                position: 'fixed',
+                marginLeft: '25%',
+                boxShadow: '0 3px 7px 0 rgba(0, 0, 0, 0.2)',
+              }}
             >
               <AlertTitle>Success</AlertTitle>
               เพิ่มสินค้าลงในตะกร้าเรียบร้อยแล้ว —{' '}
               <strong>โปรดตรวจสอบในตระกร้า</strong>
             </Alert>
           ) : (
-            <Alert severity="error" style={{ zIndex: '1', position: 'fixed' }}>
+            <Alert
+              severity="error"
+              style={{
+                zIndex: '1',
+                position: 'fixed',
+                marginLeft: '25%',
+                boxShadow: '0 3px 7px 0 rgba(0, 0, 0, 0.2)',
+              }}
+            >
               <AlertTitle>Error</AlertTitle>
-              เพิ่มสินค้าลงในตะกร้าไม่สำเร็จ — <strong>กรุณาลองอีกครั้ง</strong>
+              เพิ่มสินค้าลงในตะกร้าไม่สำเร็จ —{' '}
+              <strong>กรุณาลองใหม่อีกครั้ง</strong>
             </Alert>
           )
         ) : (
@@ -303,13 +331,13 @@ export default function Product() {
             </div>
             <br />
             <hr />
-            <br />
             <Button
               variant="contained"
               color="secondary"
               className={classes.buttonClick}
               onClick={handleOnClickAddCart}
               disabled={buttonSelect}
+              style={{ marginTop: '0.5rem' }}
             >
               <Typography variant="h6">
                 <b>เพิ่มลงในตะกร้า</b>

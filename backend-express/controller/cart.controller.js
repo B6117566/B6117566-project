@@ -161,7 +161,7 @@ module.exports = {
       });
     }
     //---------------------------------------------------------
-    if (req.body.quantity || req.body.isCart) {
+    if (req.body.quantity || !req.body.isCart) {
       fupdateCart(cart_id, req.body)
         .then((result) => {
           res.status(200).json({

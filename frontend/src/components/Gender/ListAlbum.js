@@ -69,11 +69,15 @@ export default function ListAlbum({ genderName }) {
       SetCategoryDP({ id: null, name: null });
       GlobalState.gender.map((item) => {
         if (genderName === item.name) {
-          getProductsAllByGender(item._id).then((res) => {
-            SetProductListShow(res.result);
-            SetLengthList(res.result.length);
-            SetLoadMore(0);
-          });
+          getProductsAllByGender(item._id)
+            .then((res) => {
+              SetProductListShow(res.result);
+              SetLengthList(res.result.length);
+              SetLoadMore(0);
+            })
+            .catch(() => {
+              SetProductListShow([]);
+            });
         }
       });
     } else {
@@ -149,13 +153,14 @@ export default function ListAlbum({ genderName }) {
         {productListShow.map((item) => (
           <Grid item xs={12} sm={6} md={3} key={item._id}>
             {item.isSale ? (
-              <Card className={classes.card}>
-                <CardActionArea
-                  onClick={() => {
-                    SetProductDP(item);
-                    navigate(`/products/${item._id}`);
-                  }}
-                >
+              <Card
+                className={classes.card}
+                onClick={() => {
+                  SetProductDP(item);
+                  navigate(`/products/${item._id}`);
+                }}
+              >
+                <CardActionArea>
                   <CardMedia
                     className={classes.cardMedia}
                     image={item.img}

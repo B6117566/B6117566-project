@@ -8,40 +8,40 @@ const axiosConfig = {
 const axios = Axios.create(axiosConfig);
 
 async function getGenders() {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .get('gender')
       .then((res) => {
         resolve(res.data);
       })
       .catch((err) => {
-        console.error(err);
+        reject(err);
       });
   });
 }
 
 async function getCategorysByGenderId(gender_id) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .get(`category/gender/${gender_id}`)
       .then((res) => {
         resolve(res.data);
       })
       .catch((err) => {
-        console.error(err);
+        reject(err);
       });
   });
 }
 
 async function getProductsAllByGender(gender_id) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .get(`product/gender/${gender_id}`)
       .then((res) => {
         resolve(res.data);
       })
       .catch((err) => {
-        console.error(err);
+        reject(err);
       });
   });
 }
@@ -60,40 +60,40 @@ async function getProductsAllByCategoryGender(category_id) {
 }
 
 async function findProductById(product_id) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .get(`product/${product_id}`)
       .then((res) => {
         resolve(res.data);
       })
       .catch((err) => {
-        console.error(err);
+        reject(err);
       });
   });
 }
 
 async function getStocksByProductId(product_id) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .get(`stock/product/${product_id}`)
       .then((res) => {
         resolve(res.data);
       })
       .catch((err) => {
-        console.error(err);
+        reject(err);
       });
   });
 }
 
 async function insertCart(body) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     axios
       .post(`cart`, body)
       .then((res) => {
         resolve(res);
       })
       .catch((err) => {
-        console.error(err);
+        reject(err);
       });
   });
 }

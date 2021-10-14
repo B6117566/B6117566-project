@@ -5,7 +5,6 @@ import { Container, Typography } from '@material-ui/core';
 import { Alert, AlertTitle } from '@material-ui/lab';
 import Category from '../components/Gender/Category';
 import ListAlbum from '../components/Gender/ListAlbum';
-import About from '../components/HomePage/About';
 import { GlobalContext } from '../context/GlobalProvider';
 
 const useStyles = makeStyles({
@@ -36,7 +35,7 @@ export default function Gender() {
       SetAlertShow(false);
     }, 3000);
   }
-  console.log(GlobalState)
+
   return (
     <AlertProductContext.Provider
       value={{ handleErrorProductShow, SetNameCategoryAlert }}
@@ -78,7 +77,8 @@ export default function Gender() {
               style={{
                 zIndex: '1',
                 position: 'fixed',
-                marginTop: '0.7rem',
+                marginTop: '0.5rem',
+                marginLeft: '30%',
                 boxShadow: '0 3px 7px 0 rgba(0, 0, 0, 0.2)',
               }}
             >
@@ -87,7 +87,7 @@ export default function Gender() {
               <b>
                 <u>{nameCategoryAlert}</u>
               </b>{' '}
-              ไม่สำเร็จ — <strong>กรุณาลองอีกครั้ง</strong>
+              ไม่สำเร็จ — <strong>กรุณาลองใหม่อีกครั้ง</strong>
             </Alert>
           ) : (
             <></>
@@ -98,7 +98,6 @@ export default function Gender() {
           <ListAlbum genderName={genderName} />
         </div>
       </Container>
-      <About />
     </AlertProductContext.Provider>
   );
 }
