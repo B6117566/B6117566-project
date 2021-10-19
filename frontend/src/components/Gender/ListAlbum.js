@@ -13,7 +13,6 @@ import {
   getProductsAllByGender,
   getProductsAllByCategoryGender,
 } from '../../services/ProductListGender';
-import { AlertProductContext } from '../../pages/Gender';
 
 const useStyles = makeStyles((theme) => ({
   cardGrid: {
@@ -48,6 +47,8 @@ const useHasChanged = (val) => {
   return prevVal !== val;
 };
 
+let first = false;
+
 export default function ListAlbum({ genderName }) {
   const classes = useStyles();
   const navigate = useNavigate();
@@ -56,8 +57,6 @@ export default function ListAlbum({ genderName }) {
   const [productListShow, SetProductListShow] = useState([]);
   const [loadMore, SetLoadMore] = useState(0);
   const [lengthList, SetLengthList] = useState(0);
-  const { handleErrorProductShow, SetNameCategoryAlert } =
-    useContext(AlertProductContext);
   const genderChanged = useHasChanged(genderName);
 
   const handlechangeLoadMore = () => {
@@ -66,28 +65,39 @@ export default function ListAlbum({ genderName }) {
 
   useEffect(() => {
     if (genderChanged) {
+      first = true;
       SetCategoryDP({ id: null, name: null });
       GlobalState.gender.map((item) => {
         if (genderName === item.name) {
-          getProductsAllByGender(item._id).then((res) => {
-            SetProductListShow(res.result);
-            SetLengthList(res.result.length);
-            SetLoadMore(0);
-          });
-        }
-      });
-    } else {
-      if (!GlobalState.category._id) {
-        GlobalState.gender.map((item) => {
-          if (genderName === item.name) {
-            getProductsAllByGender(item._id).then((res) => {
+          getProductsAllByGender(item._id)
+            .then((res) => {
               SetProductListShow(res.result);
               SetLengthList(res.result.length);
               SetLoadMore(0);
+            })
+            .catch(() => {
+              SetProductListShow([]);
+              SetLengthList(0);
             });
+        }
+      });
+    } else {
+      if (!GlobalState.category._id && !GlobalState.category.name && !first) {
+        GlobalState.gender.map((item) => {
+          if (genderName === item.name) {
+            getProductsAllByGender(item._id)
+              .then((res) => {
+                SetProductListShow(res.result);
+                SetLengthList(res.result.length);
+                SetLoadMore(0);
+              })
+              .catch(() => {
+                SetProductListShow([]);
+                SetLengthList(0);
+              });
           }
         });
-      } else {
+      } else if (GlobalState.category._id) {
         getProductsAllByCategoryGender(GlobalState.category._id)
           .then((res) => {
             SetProductListShow(res.result);
@@ -95,18 +105,15 @@ export default function ListAlbum({ genderName }) {
             SetLoadMore(0);
           })
           .catch((err) => {
-            console.error(
-              'ระบบไม่สามารถขอรายการ',
-              GlobalState.category.name,
-              'ได้'
-            );
-            SetNameCategoryAlert(GlobalState.category.name);
-            handleErrorProductShow();
-            SetCategoryDP({ id: null, name: null });
+            SetProductListShow([]);
+            SetLengthList(0);
+            SetCategoryDP({ _id: null, name: GlobalState.category.name });
           });
+      } else if (first) {
+        first = false;
       }
     }
-  }, [genderName, GlobalState.category._id]);
+  }, [genderName, GlobalState.category._id, GlobalState.category.name]);
 
   useEffect(() => {
     if (loadMore > 0) {
@@ -130,14 +137,9 @@ export default function ListAlbum({ genderName }) {
             }
           })
           .catch((err) => {
-            console.error(
-              'ระบบไม่สามารถขอรายการ',
-              GlobalState.category.name,
-              'ได้'
-            );
-            SetNameCategoryAlert(GlobalState.category.name);
-            handleErrorProductShow();
-            SetCategoryDP({ id: null, name: null });
+            SetProductListShow([]);
+            SetLengthList(0);
+            SetCategoryDP({ _id: null, name: GlobalState.category.name });
           });
       }
     }
@@ -149,13 +151,14 @@ export default function ListAlbum({ genderName }) {
         {productListShow.map((item) => (
           <Grid item xs={12} sm={6} md={3} key={item._id}>
             {item.isSale ? (
-              <Card className={classes.card}>
-                <CardActionArea
-                  onClick={() => {
-                    SetProductDP(item);
-                    navigate(`/products/${item._id}`);
-                  }}
-                >
+              <Card
+                className={classes.card}
+                onClick={() => {
+                  SetProductDP(item);
+                  navigate(`/products/${item._id}`);
+                }}
+              >
+                <CardActionArea>
                   <CardMedia
                     className={classes.cardMedia}
                     image={item.img}
@@ -178,9 +181,52 @@ export default function ListAlbum({ genderName }) {
         ))}
       </Grid>
       <br />
-      <hr />
-      {lengthList > 19 ? (
+
+      {GlobalState.category._id ? (
+        lengthList > 19 ? (
+          <div>
+            <hr />
+            <Button
+              color="primary"
+              style={{ width: '100%', height: '3rem' }}
+              onClick={handlechangeLoadMore}
+            >
+              <Typography variant="h6">
+                <b>แสดงสินค้าเพิ่มเติม</b>
+              </Typography>
+            </Button>
+          </div>
+        ) : (
+          <div>
+            <hr />
+            <div
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                marginTop: '1rem',
+              }}
+            >
+              <b>สิ้นสุดการแสดงสินค้า</b>
+            </div>
+          </div>
+        )
+      ) : lengthList === 0 ? (
+        <div
+          style={{
+            marginTop: '20%',
+            marginBottom: '20%',
+            display: 'flex',
+          }}
+        >
+          <div style={{ flexGrow: 1 }} />
+          <Typography variant="h6">
+            ไม่มีรายการสินค้า {GlobalState.category.name}
+          </Typography>
+          <div style={{ flexGrow: 1 }} />
+        </div>
+      ) : lengthList > 19 ? (
         <div>
+          <hr />
           <Button
             color="primary"
             style={{ width: '100%', height: '3rem' }}
@@ -192,14 +238,17 @@ export default function ListAlbum({ genderName }) {
           </Button>
         </div>
       ) : (
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'center',
-            marginTop: '1rem',
-          }}
-        >
-          <b>สิ้นสุดการแสดงสินค้า</b>
+        <div>
+          <hr />
+          <div
+            style={{
+              display: 'flex',
+              justifyContent: 'center',
+              marginTop: '1rem',
+            }}
+          >
+            <b>สิ้นสุดการแสดงสินค้า</b>
+          </div>
         </div>
       )}
     </Container>

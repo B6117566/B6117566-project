@@ -54,9 +54,10 @@ export default function SignIn() {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     resolver: yupResolver(validationSchema),
+    mode: 'onChange',
   });
 
   const onSubmit = (data) => {
@@ -71,19 +72,27 @@ export default function SignIn() {
         navigate(-1);
       })
       .catch((error) => {
-        const { status } = error.response;
-        if (status === 401) {
+        try {
+          const { status } = error.response;
+          if (status === 401) {
+            SetErrorShow(true);
+            SetErrorMessage('รหัสผ่านไม่ถูกต้อง');
+            setTimeout(() => {
+              SetErrorShow(false);
+            }, 3000);
+          } else if (status === 400) {
+            SetErrorShow(true);
+            SetErrorMessage('E-mail หรือ รหัสผ่านไม่ถูกต้อง');
+            setTimeout(() => {
+              SetErrorShow(false);
+            }, 3000);
+          }
+        } catch (error) {
           SetErrorShow(true);
-          SetErrorMessage('รหัสผ่านไม่ถูกต้อง');
+          SetErrorMessage('ระบบไม่สามารถทำตามคำร้องขอได้ กรุณาลองใหม่อีกครั้ง');
           setTimeout(() => {
             SetErrorShow(false);
-          }, 4000);
-        } else if (status === 400) {
-          SetErrorShow(true);
-          SetErrorMessage('E-mail หรือ รหัสผ่านไม่ถูกต้อง');
-          setTimeout(() => {
-            SetErrorShow(false);
-          }, 4000);
+          }, 3000);
         }
       });
   };
@@ -141,13 +150,22 @@ export default function SignIn() {
 
           <Button
             variant="contained"
-            style={{
-              color: 'white',
-              background: 'rgba(0, 0, 0, 1)',
-              borderRadius: '0px',
-              width: '100%',
-              maxWidth: '18rem',
-            }}
+            disabled={!isValid}
+            style={
+              isValid
+                ? {
+                    color: 'white',
+                    background: 'rgba(0, 0, 0, 1)',
+                    borderRadius: '0px',
+                    width: '100%',
+                    maxWidth: '18rem',
+                  }
+                : {
+                    borderRadius: '0px',
+                    width: '100%',
+                    maxWidth: '18rem',
+                  }
+            }
             onClick={handleSubmit(onSubmit)}
           >
             <Typography variant="subtitle1">

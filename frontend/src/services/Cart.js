@@ -7,10 +7,10 @@ const axiosConfig = {
 };
 const axios = Axios.create(axiosConfig);
 
-async function signinUser(body) {
+async function getCartsByUserId(user_id) {
   return new Promise((resolve, reject) => {
     axios
-      .post(`user/signin`, body)
+      .get(`cart/user/${user_id}`)
       .then((res) => {
         resolve(res.data);
       })
@@ -20,10 +20,10 @@ async function signinUser(body) {
   });
 }
 
-async function signupUser(body) {
+async function deleteCart(cart_id) {
   return new Promise((resolve, reject) => {
     axios
-      .post(`user/signup`, body)
+      .delete(`cart/${cart_id}`)
       .then((res) => {
         resolve(res.data);
       })
@@ -33,10 +33,10 @@ async function signupUser(body) {
   });
 }
 
-async function updateUserSomeField(user_id, body) {
+async function updateCartSomeField(cart_id, body) {
   return new Promise((resolve, reject) => {
     axios
-      .patch(`user/${user_id}`, body)
+      .patch(`cart/${cart_id}`, body)
       .then((res) => {
         resolve(res.data);
       })
@@ -45,18 +45,4 @@ async function updateUserSomeField(user_id, body) {
       });
   });
 }
-
-async function findUserById(user_id) {
-  return new Promise((resolve, reject) => {
-    axios
-      .get(`user/${user_id}`)
-      .then((res) => {
-        resolve(res.data);
-      })
-      .catch((err) => {
-        reject(err);
-      });
-  });
-}
-
-export { signinUser, signupUser, updateUserSomeField, findUserById };
+export { getCartsByUserId, deleteCart, updateCartSomeField };

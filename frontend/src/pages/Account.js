@@ -16,13 +16,9 @@ import {
   Backdrop,
   Fade,
 } from '@material-ui/core';
-import { useForm } from 'react-hook-form';
-import { yupResolver } from '@hookform/resolvers/yup';
-import * as Yup from 'yup';
-import { signupUser } from '../services/User';
+import { updateUserSomeField, findUserById } from '../services/User';
 import { getProvinces } from '../services/Province';
 import { getAddressByProvinceId } from '../services/Address';
-import { getUserRoleOfUser } from '../services/UserRole';
 import { GlobalContext } from '../context/GlobalProvider';
 
 const useStyles = makeStyles((theme) => ({
@@ -52,27 +48,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignUp() {
+export default function Account() {
   const classes = useStyles();
   const navigate = useNavigate();
-  const { SetAlertShow, SetAlertSelect, SetErrorMessage } =
+  const { GlobalState, SetAlertShow, SetAlertSelect, SetErrorMessage } =
     useContext(GlobalContext);
-
+  const [userApi, SetUserApi] = useState({});
+  const [userApiCompare, SetUserApiCompare] = useState({});
   const [provinceApi, SetProvinceApi] = useState([]);
   const [addressApi, SetAddressApi] = useState([]);
   const [addressFilterApi, SetAddressFilterApi] = useState([]);
 
-  const [provinceSelect, SetProvinceSelect] = useState(true);
-  const [districtSelect, SetDistrictSelect] = useState(true);
+  const [provinceSelect, SetProvinceSelect] = useState(false);
+  const [districtSelect, SetDistrictSelect] = useState(false);
 
   const [province_id, SetProvinceId] = useState('');
   const [nameDistrict, SetNameDistrict] = useState('');
   const [postCode, SetPostCode] = useState('');
 
   const [address_id, SetAddressId] = useState('');
-  const [userRole_Id, SetUserRoleId] = useState('');
 
-  const [open, setOpen] = React.useState(false);
+  const [buttonState, SetButtonState] = useState(true);
+  const [open, setOpen] = useState(false);
 
   const handleOpen = () => {
     setOpen(true);
@@ -105,34 +102,53 @@ export default function SignUp() {
     SetAddressId(e.target.value);
   };
 
-  const validationSchema = Yup.object().shape({
-    email: Yup.string()
-      .required('กรุณาใส่ E-mail')
-      .email('รูปแบบ E-mail ไม่ถูกต้อง'),
-    password: Yup.string()
-      .required('กรุณาใส่รหัสผ่าน')
-      .min(6, 'รหัสผ่านขั้นต่ำอย่างน้อย 6 ตัวอักษร')
-      .max(16, 'รหัสผ่านต้องไม่เกิน 16 ตัวอักษร'),
-    firstname: Yup.string().required('กรุณาใส่ชื่อ'),
-    lastname: Yup.string().required('กรุณาใส่นามสกุล'),
-    phone: Yup.string()
-      .required('กรุณาใส่เบอร์โทรศัพท์')
-      .min(10, 'กรุณาใส่เบอร์โทรศัพท์ 10 ตัว')
-      .max(10, 'กรุณาใส่เบอร์โทรศัพท์ 10 ตัว')
-      .matches(/^\d{10}$/, 'กรุณาใส่เบอร์โทรศัพท์เป็นตัวเลขเท่านั้น'),
-    addressDetail: Yup.string().required('กรุณากรอกรายละเอียดที่อยู่'),
-  });
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    SetUserApi((prev) => {
+      return { ...prev, [name]: value };
+    });
+  };
 
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isValid },
-  } = useForm({
-    resolver: yupResolver(validationSchema),
-    mode: 'onChange',
-  });
+  function shallowEqual(object1, object2) {
+    const keys1 = Object.keys(object1);
+    const keys2 = Object.keys(object2);
+    if (keys1.length !== keys2.length) {
+      return false;
+    }
+    for (let key of keys1) {
+      if (object1[key] !== object2[key]) {
+        return false;
+      }
+    }
+    return true;
+  }
 
   useEffect(() => {
+    findUserById(GlobalState.user._id)
+      .then((res) => {
+        SetUserApi(res.result);
+        SetUserApiCompare(res.result);
+        SetProvinceId(res.result.address_id.province_id._id);
+        SetNameDistrict(res.result.address_id.districtName);
+        SetPostCode(res.result.address_id.zipcode);
+        SetAddressId(res.result.address_id._id);
+      })
+      .catch((error) => {
+        try {
+          const { status } = error.response;
+          if (status !== 404) {
+            SetErrorMessage([
+              'ระบบไม่สามารถดึงข้อมูลบัญชีผู้ใช้ได้',
+              'กรุณาลองใหม่อีกครั้ง',
+            ]);
+            SetAlertShow(true);
+            SetAlertSelect(false);
+            setTimeout(() => {
+              SetAlertShow(false);
+            }, 3000);
+          }
+        } catch (error) {}
+      });
     getProvinces()
       .then((res) => {
         SetProvinceApi(res.result);
@@ -154,37 +170,6 @@ export default function SignUp() {
             SetErrorMessage([
               'ระบบไม่สามารถดึงข้อมูลจังหวัดได้',
               'กรุณาลองใหม่อีกครั้ง',
-            ]);
-            SetAlertShow(true);
-            SetAlertSelect(false);
-            setTimeout(() => {
-              SetAlertShow(false);
-            }, 3000);
-          }
-        } catch (error) {}
-      });
-
-    getUserRoleOfUser()
-      .then((res) => {
-        SetUserRoleId(res.result._id);
-      })
-      .catch((error) => {
-        try {
-          const { status } = error.response;
-          if (status === 404) {
-            SetErrorMessage([
-              'ระบบไม่มีข้อมูลประเภทผู้ใช้',
-              'กรุณาลองใหม่อีกครั้ง หรือติดต่อผู้ดูแลระบบ',
-            ]);
-            SetAlertShow(true);
-            SetAlertSelect(false);
-            setTimeout(() => {
-              SetAlertShow(false);
-            }, 3000);
-          } else {
-            SetErrorMessage([
-              'ระบบไม่สามารถดึงข้อมูลประเภทผู้ใช้',
-              'กรุณาลองใหม่ในภายหลัง',
             ]);
             SetAlertShow(true);
             SetAlertSelect(false);
@@ -235,17 +220,29 @@ export default function SignUp() {
           } catch (error) {}
         });
     } else {
-      SetProvinceSelect(true);
-      SetDistrictSelect(true);
       SetAddressApi([]);
       SetAddressFilterApi([]);
     }
   }, [province_id]);
 
-  const onSubmit = (data) => {
-    signupUser({
-      ...data,
-      userRole_id: userRole_Id,
+  useEffect(() => {
+    if (Object.keys(userApi).length && Object.keys(userApiCompare).length) {
+      if (!shallowEqual(userApiCompare, userApi)) {
+        SetButtonState(false);
+      } else if (userApiCompare.address_id._id !== address_id) {
+        SetButtonState(false);
+      } else {
+        SetButtonState(true);
+      }
+    }
+  }, [userApi, address_id]);
+
+  const onSubmit = () => {
+    updateUserSomeField(GlobalState.user._id, {
+      firstname: userApi.firstname,
+      lastname: userApi.lastname,
+      phone: userApi.phone,
+      addressDetail: userApi.addressDetail,
       address_id: address_id,
     })
       .then((res) => {
@@ -254,7 +251,7 @@ export default function SignUp() {
       .catch((error) => {
         try {
           const { status } = error.response;
-          if (status === 400 || status === 409) {
+          if (status === 400) {
             SetErrorMessage([
               error.response.data.result.messages,
               'กรุณาลองใหม่อีกครั้ง',
@@ -297,7 +294,7 @@ export default function SignUp() {
           <Fade in={open}>
             <div className={classes.paper}>
               <h2 id="transition-modal-title">
-                สร้างบัญชีผู้ใช้ใหม่เรียบร้อยแล้ว
+                แก้ไขข้อมูลบัญชีผู้ใช้เรียบร้อยแล้ว
               </h2>
               <Button
                 variant="contained"
@@ -310,7 +307,7 @@ export default function SignUp() {
                 onClick={handleClose}
               >
                 <Typography variant="subtitle1">
-                  <b>เข้าสู่ระบบ</b>
+                  <b>ย้อนกลับ</b>
                 </Typography>
               </Button>
             </div>
@@ -325,28 +322,23 @@ export default function SignUp() {
         }}
         variant="h4"
       >
-        <b>สร้างบัญชีผู้ใช้ใหม่ </b>
+        <b>บัญชีผู้ใช้</b>
       </Typography>
-      <Typography variant="h6">
-        (<b style={{ fontSize: '20px' }}> * </b>
-        คือ โปรดระบุ )
-      </Typography>
-      <br />
 
       <Paper variant="outlined" className={classes.root}>
         <div className={classes.propertyShow}>
           <Grid item xs={6}>
             <div className={classes.propertyElement}>
               <TextField
-                required
+                disabled
                 id="email"
                 name="email"
                 label="E-mail"
-                {...register('email')}
-                placeholder="กรอก E-mail"
+                value={userApi.email || ''}
+                InputProps={{
+                  readOnly: true,
+                }}
                 variant="outlined"
-                error={errors.email ? true : false}
-                helperText={errors.email?.message}
               />
               <br />
               <TextField
@@ -354,11 +346,10 @@ export default function SignUp() {
                 id="firstname"
                 name="firstname"
                 label="ชื่อ"
-                {...register('firstname')}
+                value={userApi.firstname || ''}
+                onChange={handleChange}
                 placeholder="กรอกชื่อ"
                 variant="outlined"
-                error={errors.firstname ? true : false}
-                helperText={errors.firstname?.message}
               />
             </div>
           </Grid>
@@ -366,28 +357,24 @@ export default function SignUp() {
             <div className={classes.propertyElement}>
               <TextField
                 required
-                id="password"
-                name="password"
-                label="รหัสผ่าน"
-                type="password"
-                {...register('password')}
-                placeholder="กรอกรหัสผ่าน"
+                id="phone"
+                name="phone"
+                label="เบอร์โทรศัพท์"
+                value={userApi.phone || ''}
+                onChange={handleChange}
+                placeholder="กรอกเบอร์โทรศัพท์"
                 variant="outlined"
-                error={errors.password ? true : false}
-                helperText={errors.password?.message}
               />
-
               <br />
               <TextField
                 required
                 id="lastname"
                 name="lastname"
                 label="นามสกุล"
-                {...register('lastname')}
+                value={userApi.lastname || ''}
+                onChange={handleChange}
                 placeholder="กรอกนามสกุล"
                 variant="outlined"
-                error={errors.lastname ? true : false}
-                helperText={errors.lastname?.message}
               />
             </div>
           </Grid>
@@ -400,33 +387,17 @@ export default function SignUp() {
             <div className={classes.propertyElement}>
               <TextField
                 required
-                id="phone"
-                name="phone"
-                label="เบอร์โทรศัพท์"
-                {...register('phone')}
-                placeholder="กรอกเบอร์โทรศัพท์"
-                variant="outlined"
-                error={errors.phone ? true : false}
-                helperText={errors.phone?.message}
-              />
-              <br />
-              <TextField
-                required
                 id="addressDetail"
                 name="addressDetail"
                 label="รายละเอียดที่อยู่"
                 multiline
-                rows={9}
-                {...register('addressDetail')}
+                rows={5}
+                value={userApi.addressDetail || ''}
+                onChange={handleChange}
                 placeholder="กรอกรายละเอียดที่อยู่"
                 variant="outlined"
-                error={errors.addressDetail ? true : false}
-                helperText={errors.addressDetail?.message}
               />
-            </div>
-          </Grid>
-          <Grid item xs={6}>
-            <div className={classes.propertyElement}>
+              <br />
               <FormControl variant="outlined">
                 <InputLabel required id="simple-select-outlined-label">
                   จังหวัด
@@ -448,7 +419,10 @@ export default function SignUp() {
                   })}
                 </Select>
               </FormControl>
-              <br />
+            </div>
+          </Grid>
+          <Grid item xs={6}>
+            <div className={classes.propertyElement}>
               <FormControl variant="outlined">
                 <InputLabel
                   required
@@ -519,6 +493,9 @@ export default function SignUp() {
                 name="zipcode"
                 label="รหัสไปรษณีย์"
                 value={postCode}
+                InputProps={{
+                  readOnly: true,
+                }}
                 variant="outlined"
               />
             </div>
@@ -526,9 +503,9 @@ export default function SignUp() {
         </div>
         <Button
           variant="contained"
-          disabled={!(isValid && address_id)}
+          disabled={buttonState}
           style={
-            isValid && address_id
+            !buttonState
               ? {
                   color: 'white',
                   background: 'rgba(0, 0, 0, 1)',
@@ -540,10 +517,10 @@ export default function SignUp() {
                   width: '100%',
                 }
           }
-          onClick={handleSubmit(onSubmit)}
+          onClick={onSubmit}
         >
           <Typography variant="subtitle1">
-            <b>ลงทะเบียน</b>
+            <b>บันทึก</b>
           </Typography>
         </Button>
       </Paper>

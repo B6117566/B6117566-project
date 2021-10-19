@@ -13,6 +13,8 @@ const HomePage = lazy(() => import('../pages/HomePage'));
 const Product = lazy(() => import('../pages/Product'));
 const Gender = lazy(() => import('../pages/Gender'));
 const Cart = lazy(() => import('../pages/Cart'));
+const Order = lazy(() => import('../pages/Order'));
+const Account = lazy(() => import('../pages/Account'));
 const SignIn = lazy(() => import('../pages/SignIn'));
 const SignUp = lazy(() => import('../pages/SignUp'));
 
@@ -31,10 +33,12 @@ export default function Router() {
           element={SuspenseLazy(<Product />)}
         />
         <PrivateRoute path="/cart" element={SuspenseLazy(<Cart />)} />
+        <PrivateRoute path="/order" element={SuspenseLazy(<Order />)} />
+        <PrivateRoute path="/account" element={SuspenseLazy(<Account />)} />
         <Route path="*" element={<Navigate to="/404" />} />
       </Route>
 
-      <Route path="/auth/" element={<BlankLayout />}>
+      <Route path="/auth/" element={<MainLayout />}>
         <Route path="/" element={<Navigate to="/404" />} />
         <Route path="/signin" element={SuspenseLazy(<SignIn />)} />
         <Route path="/signup" element={SuspenseLazy(<SignUp />)} />

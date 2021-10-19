@@ -18,7 +18,7 @@ const orderSchema = Schema(
       },
     },
     cart_id: {
-      type: Schema.Types.ObjectId,
+      type: [Schema.Types.ObjectId],
       ref: 'Cart',
       required: true,
     },

@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
     backgroundColor: '#FFFFFF',
-    boxShadow: '0 3px 10px 0 rgba(0, 0, 0, 0.1)',
+    boxShadow: '0 1px 5px 0 rgba(0, 0, 0, 0.1)',
   },
   title: {
     display: 'none',

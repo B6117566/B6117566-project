@@ -26,7 +26,7 @@ function MainMenuManageIcon() {
     setAnchorEl(event.currentTarget);
   };
 
-  const handleMenuClose = (event) => {
+  const handleMenuClose = () => {
     setAnchorEl(null);
   };
 
@@ -40,6 +40,11 @@ function MainMenuManageIcon() {
       open={isMenuOpen}
       onClose={handleMenuClose}
     >
+      <Link to="/order" style={{ textDecoration: 'none', color: 'black' }}>
+        <MenuItem id="account" onClick={handleMenuClose}>
+          รายการสั่งซื้อ
+        </MenuItem>
+      </Link>
       <Link to="/account" style={{ textDecoration: 'none', color: 'black' }}>
         <MenuItem id="account" onClick={handleMenuClose}>
           บัญชีของฉัน

@@ -14,7 +14,6 @@ import {
 } from '@material-ui/core';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-import { Alert, AlertTitle } from '@material-ui/lab';
 import {
   findProductById,
   getStocksByProductId,
@@ -84,14 +83,14 @@ export default function Product() {
   const classes = useStyles();
   const { productID } = useParams();
   const navigate = useNavigate();
-  const { GlobalState } = useContext(GlobalContext);
+  const { GlobalState, SetAlertShow, SetAlertSelect, SetErrorMessage } =
+    useContext(GlobalContext);
   const [productApi, SetProductApi] = useState([]);
   const [stockApi, SetStockApi] = useState([]);
   const [countSelectArray, SetCountSelectArray] = useState([]);
   const [buttonSelect, SetButtonSelect] = useState(false);
-  const [alertShow, SetAlertShow] = useState(false);
-  const [alertSelect, SetAlertSelect] = useState(false);
 
+  const [cartState, SetCartState] = useState(false);
   const [sizeSelect, SetSizeSelect] = useState(null);
   const [countSelect, SetCountSelect] = useState(1);
 
@@ -105,46 +104,67 @@ export default function Product() {
   };
 
   const handleOnClickAddCart = () => {
-    if (sizeSelect && countSelect > 0) {
-      const data = {
-        quantity: Number(countSelect),
-        stock_id: sizeSelect,
-        user_id: '614db408b2322647f01ea953',
-      };
-      insertCart(data).then((res) => {
-        if (res.status === 201) {
-          SetAlertShow(true);
-          SetAlertSelect(true);
-          setTimeout(() => {
-            SetAlertShow(false);
-          }, 4000);
-        } else {
-          SetAlertShow(true);
-          SetAlertSelect(false);
-          setTimeout(() => {
-            SetAlertShow(false);
-          }, 4000);
-        }
-      });
+    if (GlobalState.user.isAuthen) {
+      if (sizeSelect) {
+        const data = {
+          quantity: Number(countSelect),
+          stock_id: sizeSelect,
+          user_id: GlobalState.user._id,
+        };
+        insertCart(data).then((res) => {
+          if (res.status === 201) {
+            SetCartState((prev) => !prev);
+            SetErrorMessage([
+              'เพิ่ม สินค้าลงในตะกร้าเรียบร้อยแล้ว',
+              'โปรดตรวจสอบในตระกร้า',
+            ]);
+            SetAlertShow(true);
+            SetAlertSelect(true);
+            setTimeout(() => {
+              SetAlertShow(false);
+            }, 3000);
+          } else {
+            SetErrorMessage([
+              'เพิ่ม สินค้าลงในตะกร้าไม่สำเร็จ',
+              'กรุณาลองใหม่อีกครั้ง',
+            ]);
+            SetAlertShow(true);
+            SetAlertSelect(false);
+            setTimeout(() => {
+              SetAlertShow(false);
+            }, 3000);
+          }
+        });
+      }
+    } else {
+      navigate(`/auth/signin`);
     }
   };
 
   useEffect(() => {
     function getStocks(id) {
-      getStocksByProductId(id).then((res) => {
-        SetStockApi(res.result);
-      });
+      getStocksByProductId(id)
+        .then((res) => {
+          SetStockApi(res.result);
+        })
+        .catch(() => {
+          SetStockApi([]);
+        });
     }
     if (!GlobalState.product) {
-      findProductById(productID).then((res) => {
-        SetProductApi(res.result);
-      });
+      findProductById(productID)
+        .then((res) => {
+          SetProductApi(res.result);
+        })
+        .catch(() => {
+          SetProductApi([]);
+        });
       getStocks(productID);
     } else {
       SetProductApi(GlobalState.product);
       getStocks(GlobalState.product._id);
     }
-  }, [GlobalState.product]);
+  }, [GlobalState.product, cartState]);
 
   useEffect(() => {
     if (!sizeSelect) {
@@ -167,26 +187,6 @@ export default function Product() {
   return (
     <div className={classes.root}>
       <Container>
-        {alertShow ? (
-          alertSelect ? (
-            <Alert
-              severity="success"
-              style={{ zIndex: '1', position: 'fixed' }}
-            >
-              <AlertTitle>Success</AlertTitle>
-              เพิ่มสินค้าลงในตะกร้าเรียบร้อยแล้ว —{' '}
-              <strong>โปรดตรวจสอบในตระกร้า</strong>
-            </Alert>
-          ) : (
-            <Alert severity="error" style={{ zIndex: '1', position: 'fixed' }}>
-              <AlertTitle>Error</AlertTitle>
-              เพิ่มสินค้าลงในตะกร้าไม่สำเร็จ — <strong>กรุณาลองอีกครั้ง</strong>
-            </Alert>
-          )
-        ) : (
-          <></>
-        )}
-
         <Grid container spacing={5}>
           <Grid item xs={12} sm={6} lg={7}>
             <div className={classes.centerImage}>
@@ -303,13 +303,13 @@ export default function Product() {
             </div>
             <br />
             <hr />
-            <br />
             <Button
               variant="contained"
               color="secondary"
               className={classes.buttonClick}
               onClick={handleOnClickAddCart}
               disabled={buttonSelect}
+              style={{ marginTop: '0.5rem' }}
             >
               <Typography variant="h6">
                 <b>เพิ่มลงในตะกร้า</b>

@@ -10,7 +10,7 @@ const axios = Axios.create(axiosConfig);
 async function getUserRoleOfUser() {
   return new Promise((resolve, reject) => {
     axios
-      .get('userrole/author/user')
+      .get('userrole/position/user')
       .then((res) => {
         resolve(res.data);
       })
@@ -23,7 +23,7 @@ async function getUserRoleOfUser() {
 async function findUserRoleById(userRole_id) {
   return new Promise((resolve, reject) => {
     axios
-      .get(`userrole/${userRole_id}`)
+      .post(`userrole/position`, {userRole_id})
       .then((res) => {
         resolve(res.data);
       })

@@ -44,16 +44,20 @@ export default function Category({ genderName }) {
   };
 
   const handleSelectCategory = (id, name) => {
-    SetCategoryDP({ _id: id, name });
+    SetCategoryDP({ _id: id, name: name });
   };
 
   useEffect(() => {
     GlobalState.gender.map((item) => {
       if (genderName === item.name) {
         SetGenderIDDP(item._id);
-        getCategorysByGenderId(item._id).then((res) => {
-          SetCategoryApi(res.result);
-        });
+        getCategorysByGenderId(item._id)
+          .then((res) => {
+            SetCategoryApi(res.result);
+          })
+          .catch(() => {
+            SetCategoryApi([]);
+          });
       }
     });
   }, [genderName]);

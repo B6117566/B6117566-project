@@ -30,7 +30,7 @@ const fgetOrders = async (limit, offset) => {
             },
             {
               path: 'size_id',
-              model: 'Order',
+              model: 'Size',
             },
           ],
         },
@@ -39,7 +39,7 @@ const fgetOrders = async (limit, offset) => {
   });
 };
 
-const fgetOrdersByUserId = async (user_id) => {
+const fgetOrdersByUserId = async (user_id, limit, offset) => {
   return new Promise((resolve, reject) => {
     Order.find({ user_id: user_id }, (err, data) => {
       if (err) {
@@ -52,6 +52,9 @@ const fgetOrdersByUserId = async (user_id) => {
         }
       }
     })
+      .limit(limit)
+      .skip(offset)
+      .sort({ createdAt: 'desc' })
       .populate({
         path: 'cart_id',
         model: 'Cart',
@@ -65,7 +68,7 @@ const fgetOrdersByUserId = async (user_id) => {
             },
             {
               path: 'size_id',
-              model: 'Order',
+              model: 'Size',
             },
           ],
         },
@@ -142,11 +145,39 @@ module.exports = {
       });
     }
     //---------------------------------------------------------
-    fgetOrdersByUserId(user_id)
+    let limit = 20;
+    let offset = 0;
+
+    if (req.query.limit) {
+      if (req.query.limit.match(/^[0-9]+$/)) {
+        limit = parseInt(req.query.limit);
+      } else {
+        return res.status(400).json({
+          sucessful: false,
+          result: { messages: 'Limit was not correct format' },
+        });
+      }
+    }
+    if (req.query.offset) {
+      if (req.query.offset.match(/^[0-9]+$/)) {
+        offset = parseInt(req.query.offset);
+      } else {
+        return res.status(400).json({
+          sucessful: false,
+          result: { messages: 'Offset was not correct format' },
+        });
+      }
+    }
+    //---------------------------------------------------------
+    fgetOrdersByUserId(user_id, limit, offset)
       .then((resultOrder) => {
         res.status(200).json({
           sucessful: true,
           result: resultOrder,
+          pagination: {
+            count: limit,
+            offset: offset,
+          },
         });
       })
       .catch((err) => {

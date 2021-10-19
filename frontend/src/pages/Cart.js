@@ -1,5 +1,4 @@
-import React from 'react';
-
+import React, { useContext, useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Container,
@@ -12,8 +11,18 @@ import {
   Select,
   FormControl,
   MenuItem,
+  IconButton,
 } from '@material-ui/core';
-import { useState } from 'react';
+
+import ClearIcon from '@material-ui/icons/Clear';
+import {
+  getCartsByUserId,
+  deleteCart,
+  updateCartSomeField,
+} from '../services/Cart';
+import { updateStockSomeField } from '../services/Stock';
+import { insertOrder } from '../services/Order';
+import { GlobalContext } from '../context/GlobalProvider';
 
 const useStyles = makeStyles({
   root: {
@@ -29,10 +38,6 @@ const useStyles = makeStyles({
     flexDirection: 'column',
     margin: '1rem',
   },
-  cartShow: {
-    display: 'flex',
-    flexDirection: 'row',
-  },
   cartDetail: {
     display: 'flex',
     flexDirection: 'column',
@@ -40,7 +45,7 @@ const useStyles = makeStyles({
     width: '100%',
   },
   card: {
-    width: '32%',
+    width: '250px',
   },
   cardMedia: {
     paddingTop: '100%',
@@ -54,13 +59,249 @@ const useStyles = makeStyles({
 
 export default function Cart() {
   const classes = useStyles();
-  const [countSelectArray, SetCountSelectArray] = useState([
-    ...Array(10).keys(),
-  ]);
-  const [countSelect, SetCountSelect] = useState(1);
-  const handleCountSelect = (e) => {
-    SetCountSelect(e.target.value);
+  const { GlobalState, SetAlertShow, SetAlertSelect, SetErrorMessage } =
+    useContext(GlobalContext);
+  const [cartApi, SetCartApi] = useState([]);
+  const [idList, SetIDList] = useState([]);
+  const [totalPrice, SetTotalPrice] = useState(0);
+  const [totalCount, SetTotalCount] = useState(0);
+
+  const [deleteSelectState, SetDeleteSelectState] = useState(false);
+  const [orderState, SetOrderState] = useState(false);
+
+  const handleCountSelect = (index, e, id) => {
+    updateCartSomeField(id, { quantity: e.target.value }).then(() => {
+      const data = cartApi;
+      data[index].quantity = e.target.value;
+      SetCartApi([...data]);
+    });
   };
+
+  const handleOrder = async () => {
+    let checkErrorUpdate = true;
+    let checkErrorStockQuantity = true;
+    let checkErrorOrder = true;
+
+    await Promise.all(
+      cartApi.map(async (item) => {
+        await updateCartSomeField(item._id, { isCart: false }).catch(() => {
+          checkErrorUpdate = false;
+        });
+        await updateStockSomeField(item.stock_id._id, {
+          quantity: item.stock_id.quantity - item.quantity,
+        }).catch(() => {
+          checkErrorStockQuantity = false;
+        });
+      })
+    );
+
+    if (checkErrorUpdate && checkErrorStockQuantity) {
+      try {
+        await insertOrder({
+          total: totalPrice,
+          cart_id: idList,
+          user_id: GlobalState.user._id,
+        });
+      } catch (error) {
+        checkErrorOrder = false;
+      }
+    }
+
+    if (checkErrorUpdate && checkErrorOrder && checkErrorStockQuantity) {
+      SetOrderState((prev) => !prev);
+      SetErrorMessage([
+        'สั่งสินค้าเรียบร้อยแล้ว',
+        'โปรดตรวจสอบในออเดอร์ของคุณในบัญชีของคุณ',
+      ]);
+      SetAlertShow(true);
+      SetAlertSelect(true);
+      setTimeout(() => {
+        SetAlertShow(false);
+      }, 3000);
+    } else {
+      SetErrorMessage(['สั่งสินค้าไม่สำเร็จ', 'กรุณาลองใหม่อีกครั้ง']);
+      SetAlertShow(true);
+      SetAlertSelect(false);
+      setTimeout(() => {
+        SetAlertShow(false);
+      }, 3000);
+    }
+  };
+
+  const handleDeleteSelect = (id) => {
+    deleteCart(id)
+      .then(() => {
+        SetDeleteSelectState((prev) => !prev);
+        SetErrorMessage([
+          'ลบ สินค้าในตะกร้าเรียบร้อยแล้ว',
+          'โปรดตรวจสอบในตระกร้า',
+        ]);
+        SetAlertShow(true);
+        SetAlertSelect(true);
+        setTimeout(() => {
+          SetAlertShow(false);
+        }, 3000);
+      })
+      .catch((error) => {
+        try {
+          const { status } = error.response;
+          if (status === 404) {
+            SetErrorMessage([
+              'ลบ สินค้าในตะกร้าไม่สำเร็จ',
+              'กรุณาลองใหม่อีกครั้ง',
+            ]);
+            SetAlertShow(true);
+            SetAlertSelect(false);
+            setTimeout(() => {
+              SetAlertShow(false);
+            }, 3000);
+          }
+        } catch (error) {
+          SetErrorMessage([
+            'ระบบไม่สามารถทำตามคำร้องขอได้',
+            'กรุณาลองใหม่อีกครั้ง',
+          ]);
+          SetAlertShow(true);
+          SetAlertSelect(false);
+          setTimeout(() => {
+            SetAlertShow(false);
+          }, 3000);
+        }
+      });
+  };
+
+  useEffect(() => {
+    getCartsByUserId(GlobalState.user._id)
+      .then((res) => {
+        SetCartApi(res.result);
+        SetIDList(
+          res.result.map((item) => {
+            return item._id;
+          })
+        );
+      })
+      .catch(() => {
+        SetCartApi([]);
+        SetIDList([]);
+      });
+  }, [deleteSelectState, orderState]);
+
+  useEffect(() => {
+    SetTotalPrice(0);
+    SetTotalCount(0);
+    cartApi.map((item) => {
+      SetTotalCount((prev) => {
+        return prev + 1;
+      });
+      SetTotalPrice((prev) => {
+        return item.quantity * item.stock_id.product_id.prices + prev;
+      });
+    });
+  }, [cartApi]);
+
+  const listCartShow = cartApi.map((item, index) => {
+    return (
+      <div key={item._id}>
+        <div className={classes.propertyShow}>
+          <div className={classes.card}>
+            <Card>
+              <CardMedia
+                className={classes.cardMedia}
+                image={item.stock_id.product_id.img}
+                src="image"
+                title=""
+              />
+            </Card>
+          </div>
+          <div className={classes.cartDetail}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+              }}
+            >
+              <Typography variant="h6">
+                <b>{item.stock_id.product_id.name}</b>
+              </Typography>
+              <div style={{ flexGrow: 1 }} />
+              <IconButton
+                color="inherit"
+                onClick={() => {
+                  handleDeleteSelect(item._id);
+                }}
+              >
+                <ClearIcon />
+              </IconButton>
+            </div>
+            <Typography>
+              รหัสสินค้า : {item.stock_id.product_id.code}
+            </Typography>
+            <Typography>ขนาด : {item.stock_id.size_id.name}</Typography>
+            <br />
+            <Typography>
+              <b>THB {item.stock_id.product_id.prices}</b>
+            </Typography>
+            <br />
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'row',
+              }}
+            >
+              <Typography>จำนวน </Typography>
+              <div style={{ flexGrow: 1 }} />
+              <FormControl variant="outlined" className={classes.formControl}>
+                <Select
+                  id="select-quantity"
+                  name="select-quantity"
+                  value={item.quantity}
+                  onChange={(e) => {
+                    handleCountSelect(index, e, item._id);
+                  }}
+                  style={{ marginTop: '-1rem' }}
+                  MenuProps={{
+                    PaperProps: {
+                      style: {
+                        maxHeight: '35%',
+                        width: '10%',
+                      },
+                    },
+                  }}
+                >
+                  {[...Array(item.stock_id.quantity).keys()].map(
+                    (itemA, indexA) => {
+                      if (indexA < 10) {
+                        return (
+                          <MenuItem key={indexA} value={itemA + 1}>
+                            {itemA + 1}
+                          </MenuItem>
+                        );
+                      }
+                    }
+                  )}
+                </Select>
+              </FormControl>
+              <div style={{ flexGrow: 1 }} />
+              <Typography>
+                <b>
+                  ยอดรวม : THB {item.quantity * item.stock_id.product_id.prices}
+                </b>
+              </Typography>
+            </div>
+          </div>
+        </div>
+        {cartApi.length === 1 ? (
+          <></>
+        ) : (
+          <div>
+            <br />
+            <hr />
+            <br />
+          </div>
+        )}
+      </div>
+    );
+  });
 
   return (
     <Container className={classes.root}>
@@ -71,138 +312,95 @@ export default function Cart() {
         }}
         variant="h4"
       >
-        <b>ตระกร้าสินค้า</b>
+        <b>ตะกร้า</b>
       </Typography>
-      <Paper variant="outlined" className={classes.propertyShow}>
-        <Grid item xs={8}>
-          <div className={classes.propertyElement}>
-            <div className={classes.cartShow}>
-              <div className={classes.card}>
-                <Card>
-                  <CardMedia
-                    className={classes.cardMedia}
-                    image="https://image.uniqlo.com/UQ/ST3/th/imagesgoods/440882/item/thgoods_09_440882.jpg?width=648&impolicy=quality_75"
-                    src="image"
-                    title=""
-                  />
-                </Card>
-              </div>
-              <div className={classes.cartDetail}>
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                  }}
-                >
-                  <Typography variant="h6">
-                    <b>MEN เสื้อแขนสั้น Manga Demon Slayer UT</b>
-                  </Typography>
-                  <div style={{ flexGrow: 1 }} />
-                  <Typography variant="h6">
-                    <b>X</b>
-                  </Typography>
-                </div>
-                <Typography>รหัสสินค้า : 440882</Typography>
-                <Typography>ขนาด : S</Typography>
-                <br />
-                <Typography>
-                  <b>THB 590.00</b>
-                </Typography>
-                <br />
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                  }}
-                >
-                  <Typography>จำนวน </Typography>
+      <Paper
+        variant="outlined"
+        className={classes.propertyShow}
+        style={{ marginBottom: '2rem' }}
+      >
+        {cartApi.length ? (
+          <>
+            <Grid item xs={8}>
+              <Paper
+                elevation={3}
+                className={classes.propertyElement}
+                style={{ marginBottom: '1rem' }}
+              >
+                <div className={classes.propertyElement}>{listCartShow}</div>
+              </Paper>
+            </Grid>
 
-                  <FormControl
-                    variant="outlined"
-                    className={classes.formControl}
+            <hr style={{ width: '20px', border: '0px' }} />
+            <Grid item xs={4}>
+              <div
+                className={classes.propertyElement}
+                style={{ position: 'sticky', top: 85 }}
+              >
+                <Paper variant="outlined">
+                  <div
+                    style={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      margin: '0.8rem',
+                    }}
                   >
-                    <Select
-                      id="select-number"
-                      value={countSelect}
-                      onChange={handleCountSelect}
-                      style={{ maxHeight: '45px' }}
-                      MenuProps={{
-                        PaperProps: {
-                          style: {
-                            maxHeight: '35%',
-                            width: '10%',
-                          },
-                        },
+                    <Typography variant="h6">
+                      สรุปคำสั่งซื้อ | <b>{totalCount}</b> รายการ
+                    </Typography>
+                    <br />
+                    <div
+                      style={{
+                        display: 'flex',
+                        flexDirection: 'row',
                       }}
                     >
-                      {countSelectArray.map((item, index) => {
-                        return (
-                          <MenuItem key={index} value={item + 1}>
-                            {item + 1}
-                          </MenuItem>
-                        );
-                      })}
-                    </Select>
-                  </FormControl>
-                </div>
-              </div>
-            </div>
-            <br />
-            <div>
-              <hr />
-            </div>
-          </div>
-        </Grid>
-        <hr style={{ width: '30px', border: '0px' }} />
-        <Grid item xs={4}>
-          <div className={classes.propertyElement}>
-            <Paper variant="outlined">
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  margin: '0.8rem',
-                }}
-              >
-                <Typography variant="h6">
-                  สรุปคำสั่งซื้อ | <b>2</b> รายการ
-                </Typography>
+                      <Typography variant="h6">
+                        <b>ราคารวมทั้งหมด</b>
+                      </Typography>
+                      <div style={{ flexGrow: 1 }} />
+                      <Typography variant="h6">
+                        <b>THB {totalPrice}</b>
+                      </Typography>
+                    </div>
+                  </div>
+                </Paper>
                 <br />
-                <div
-                  style={{
-                    display: 'flex',
-                    flexDirection: 'row',
-                  }}
-                >
-                  <Typography variant="h6">
-                    <b>ราคารวมทั้งหมด</b>
-                  </Typography>
-                  <div style={{ flexGrow: 1 }} />
-                  <Typography variant="h6">
-                    <b>THB 1,180.00</b>
-                  </Typography>
+                <div>
+                  <hr />
                 </div>
+                <br />
+                <Button
+                  variant="contained"
+                  color="primary"
+                  style={{
+                    borderRadius: '0px',
+                    width: '100%',
+                  }}
+                  onClick={handleOrder}
+                >
+                  <Typography variant="subtitle1">
+                    <b>สั่งสินค้า</b>
+                  </Typography>
+                </Button>
               </div>
-            </Paper>
-            <br />
-            <div>
-              <hr />
-            </div>
-            <br />
-            <Button
-              variant="contained"
-              color="primary"
+            </Grid>
+          </>
+        ) : (
+          <>
+            <div style={{ flexGrow: 1 }} />
+            <Typography
               style={{
-                borderRadius: '0px',
-                width: '100%',
+                marginTop: '5rem',
+                marginBottom: '5rem',
               }}
+              variant="h5"
             >
-              <Typography variant="subtitle1">
-                <b>สั่งสินค้า</b>
-              </Typography>
-            </Button>
-          </div>
-        </Grid>
+              ตะกร้าของคุณว่างอยู่
+            </Typography>
+            <div style={{ flexGrow: 1 }} />
+          </>
+        )}
       </Paper>
     </Container>
   );
