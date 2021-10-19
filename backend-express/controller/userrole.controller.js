@@ -124,7 +124,7 @@ module.exports = {
       });
   },
   findUserRoleById: function (req, res, next) {
-    const userRole_id = req.params.userRole_id;
+    const userRole_id = req.body.userRole_id;
 
     if (!userRole_id.match(/^[0-9a-fA-F]{24}$/)) {
       return res.status(400).json({

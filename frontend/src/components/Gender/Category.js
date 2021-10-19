@@ -44,7 +44,7 @@ export default function Category({ genderName }) {
   };
 
   const handleSelectCategory = (id, name) => {
-    SetCategoryDP({ _id: id, name });
+    SetCategoryDP({ _id: id, name: name });
   };
 
   useEffect(() => {

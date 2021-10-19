@@ -79,20 +79,20 @@ export default function SignIn() {
             SetErrorMessage('รหัสผ่านไม่ถูกต้อง');
             setTimeout(() => {
               SetErrorShow(false);
-            }, 4000);
+            }, 3000);
           } else if (status === 400) {
             SetErrorShow(true);
             SetErrorMessage('E-mail หรือ รหัสผ่านไม่ถูกต้อง');
             setTimeout(() => {
               SetErrorShow(false);
-            }, 4000);
+            }, 3000);
           }
         } catch (error) {
           SetErrorShow(true);
           SetErrorMessage('ระบบไม่สามารถทำตามคำร้องขอได้ กรุณาลองใหม่อีกครั้ง');
           setTimeout(() => {
             SetErrorShow(false);
-          }, 4000);
+          }, 3000);
         }
       });
   };

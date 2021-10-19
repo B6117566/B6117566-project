@@ -8,7 +8,6 @@ import {
   Card,
   CardMedia,
 } from '@material-ui/core';
-import { Alert, AlertTitle } from '@material-ui/lab';
 import { getOrdersByUserId } from '../services/Order';
 import { GlobalContext } from '../context/GlobalProvider';
 import moment from 'moment';
@@ -44,19 +43,15 @@ const useStyles = makeStyles({
 
 export default function Order() {
   const classes = useStyles();
-  const { GlobalState } = useContext(GlobalContext);
+  const { GlobalState, SetAlertShow, SetAlertSelect, SetErrorMessage } =
+    useContext(GlobalContext);
   const [orderApi, SetOrderApi] = useState([]);
-
-  const [alertShow, SetAlertShow] = useState(false);
-  const [alertSelect, SetAlertSelect] = useState(false);
-  const [errorMessage, SetErrorMessage] = useState(['', '']);
 
   useEffect(() => {
     moment.locale('th');
     getOrdersByUserId(GlobalState.user._id)
       .then((res) => {
         SetOrderApi(res.result);
-        console.log(res.result);
       })
       .catch((error) => {
         try {
@@ -71,7 +66,7 @@ export default function Order() {
             SetAlertSelect(false);
             setTimeout(() => {
               SetAlertShow(false);
-            }, 4000);
+            }, 3000);
           }
         } catch (error) {}
       });
@@ -204,40 +199,6 @@ export default function Order() {
 
   return (
     <Container className={classes.root}>
-      {alertShow ? (
-        alertSelect ? (
-          <Alert
-            severity="success"
-            style={{
-              zIndex: '1',
-              position: 'fixed',
-              marginTop: '0.5rem',
-              marginLeft: '25%',
-              boxShadow: '0 3px 7px 0 rgba(0, 0, 0, 0.2)',
-            }}
-          >
-            <AlertTitle>Success</AlertTitle>
-            {errorMessage[0]} — <strong>{errorMessage[1]}</strong>
-          </Alert>
-        ) : (
-          <Alert
-            severity="error"
-            style={{
-              zIndex: '1',
-              position: 'fixed',
-              marginTop: '0.5rem',
-              marginLeft: '25%',
-              boxShadow: '0 3px 7px 0 rgba(0, 0, 0, 0.2)',
-            }}
-          >
-            <AlertTitle>Error</AlertTitle>
-            {errorMessage[0]} — <strong>{errorMessage[1]}</strong>
-          </Alert>
-        )
-      ) : (
-        <></>
-      )}
-
       <Typography
         style={{
           marginTop: '2rem',

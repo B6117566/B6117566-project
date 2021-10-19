@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useReducer } from 'react';
+import React, { createContext, useEffect, useReducer, useState } from 'react';
 import {
   getUserRoleOfUser,
   findUserRoleById,
@@ -12,14 +12,19 @@ async function checkInitAuthorPart() {
   } catch (error) {}
   try {
     if (UserData) {
-      const data = await findUserRoleById(UserData.userRole._id);
-      return data.result.authorizationPart;
+      if (UserData.userRole._id) {
+        const data = await findUserRoleById(UserData.userRole._id);
+        return data.result.authorizationPart;
+      } else {
+        const data = await getUserRoleOfUser();
+        return data.result.authorizationPart;
+      }
     } else {
       const data = await getUserRoleOfUser();
       return data.result.authorizationPart;
     }
   } catch (error) {
-    return [];
+    return null;
   }
 }
 
@@ -30,11 +35,17 @@ async function checkInitUser() {
   } catch (error) {}
   try {
     if (UserData) {
-      await checkExpiresAuthorization({
-        token: UserData.token,
-      });
-      if (!UserData.isAuthen) {
-        UserData.isAuthen = true;
+      if (UserData.token) {
+        await checkExpiresAuthorization({
+          token: UserData.token,
+        });
+
+        if (!UserData.isAuthen) {
+          UserData.isAuthen = true;
+          localStorage.setItem('user', JSON.stringify(UserData));
+        }
+      } else {
+        UserData.isAuthen = false;
         localStorage.setItem('user', JSON.stringify(UserData));
       }
       return UserData;
@@ -53,6 +64,7 @@ async function checkInitUser() {
     }
   } catch (error) {
     UserData.isAuthen = false;
+    UserData.token = null;
     localStorage.setItem('user', JSON.stringify(UserData));
     return UserData;
   }
@@ -133,6 +145,11 @@ export const GlobalStateProvider = ({ children }) => {
   const SetUserLoginDP = (payload) =>
     GlobalDispatch({ type: 'SET_USER', payload });
 
+  const [alertShow, SetAlertShow] = useState(false);
+  const [alertSelect, SetAlertSelect] = useState(false);
+  const [errorMessage, SetErrorMessage] = useState(['', '']);
+  const AlertState = { alertShow, alertSelect, errorMessage };
+
   return (
     <GlobalContext.Provider
       value={{
@@ -143,6 +160,10 @@ export const GlobalStateProvider = ({ children }) => {
         SetProductDP,
         SetAuthorPartDP,
         SetUserLoginDP,
+        AlertState,
+        SetAlertShow,
+        SetAlertSelect,
+        SetErrorMessage,
       }}
     >
       {children}

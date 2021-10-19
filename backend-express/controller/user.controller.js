@@ -51,7 +51,7 @@ const ffindUserById = async (id) => {
         }
       }
     })
-      .select('-userRole_id')
+      .select('-userRole_id -password')
       .populate({
         path: 'address_id',
         model: 'Address',
@@ -93,7 +93,7 @@ const fupdateUser = async (id, data) => {
   return new Promise((resolve, reject) => {
     User.updateOne(
       { _id: id },
-      [{ $set: data }, { $unset: userRole_id }],
+      { $set: data },
       { runValidators: true },
       (err) => {
         if (err) {
@@ -237,18 +237,17 @@ module.exports = {
 
     const length = Object.keys(req.body).length;
 
-    if (length >= 1 && length <= 2) {
+    if (!(length >= 1 && length <= 5)) {
       return res.status(400).json({
         sucessful: false,
         result: {
           messages:
-            'data user get only one or two field was not correct format',
+            'data user get only 1 or max 5 field was not correct format',
         },
       });
     }
     //---------------------------------------------------------
     if (
-      req.body.password ||
       req.body.firstname ||
       req.body.lastname ||
       req.body.phone ||

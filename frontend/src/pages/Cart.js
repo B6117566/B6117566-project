@@ -13,7 +13,7 @@ import {
   MenuItem,
   IconButton,
 } from '@material-ui/core';
-import { Alert, AlertTitle } from '@material-ui/lab';
+
 import ClearIcon from '@material-ui/icons/Clear';
 import {
   getCartsByUserId,
@@ -59,7 +59,8 @@ const useStyles = makeStyles({
 
 export default function Cart() {
   const classes = useStyles();
-  const { GlobalState } = useContext(GlobalContext);
+  const { GlobalState, SetAlertShow, SetAlertSelect, SetErrorMessage } =
+    useContext(GlobalContext);
   const [cartApi, SetCartApi] = useState([]);
   const [idList, SetIDList] = useState([]);
   const [totalPrice, SetTotalPrice] = useState(0);
@@ -67,9 +68,6 @@ export default function Cart() {
 
   const [deleteSelectState, SetDeleteSelectState] = useState(false);
   const [orderState, SetOrderState] = useState(false);
-  const [alertShow, SetAlertShow] = useState(false);
-  const [alertSelect, SetAlertSelect] = useState(false);
-  const [errorMessage, SetErrorMessage] = useState(['', '']);
 
   const handleCountSelect = (index, e, id) => {
     updateCartSomeField(id, { quantity: e.target.value }).then(() => {
@@ -119,14 +117,14 @@ export default function Cart() {
       SetAlertSelect(true);
       setTimeout(() => {
         SetAlertShow(false);
-      }, 4000);
+      }, 3000);
     } else {
       SetErrorMessage(['สั่งสินค้าไม่สำเร็จ', 'กรุณาลองใหม่อีกครั้ง']);
       SetAlertShow(true);
       SetAlertSelect(false);
       setTimeout(() => {
         SetAlertShow(false);
-      }, 4000);
+      }, 3000);
     }
   };
 
@@ -135,14 +133,14 @@ export default function Cart() {
       .then(() => {
         SetDeleteSelectState((prev) => !prev);
         SetErrorMessage([
-          'ลบ สินค้าลงในตะกร้าเรียบร้อยแล้ว',
+          'ลบ สินค้าในตะกร้าเรียบร้อยแล้ว',
           'โปรดตรวจสอบในตระกร้า',
         ]);
         SetAlertShow(true);
         SetAlertSelect(true);
         setTimeout(() => {
           SetAlertShow(false);
-        }, 4000);
+        }, 3000);
       })
       .catch((error) => {
         try {
@@ -156,7 +154,7 @@ export default function Cart() {
             SetAlertSelect(false);
             setTimeout(() => {
               SetAlertShow(false);
-            }, 4000);
+            }, 3000);
           }
         } catch (error) {
           SetErrorMessage([
@@ -167,7 +165,7 @@ export default function Cart() {
           SetAlertSelect(false);
           setTimeout(() => {
             SetAlertShow(false);
-          }, 4000);
+          }, 3000);
         }
       });
   };
@@ -292,7 +290,7 @@ export default function Cart() {
             </div>
           </div>
         </div>
-        {cartApi.length == 1 ? (
+        {cartApi.length === 1 ? (
           <></>
         ) : (
           <div>
@@ -307,40 +305,6 @@ export default function Cart() {
 
   return (
     <Container className={classes.root}>
-      {alertShow ? (
-        alertSelect ? (
-          <Alert
-            severity="success"
-            style={{
-              zIndex: '1',
-              position: 'fixed',
-              marginTop: '0.5rem',
-              marginLeft: '25%',
-              boxShadow: '0 3px 7px 0 rgba(0, 0, 0, 0.2)',
-            }}
-          >
-            <AlertTitle>Success</AlertTitle>
-            {errorMessage[0]} — <strong>{errorMessage[1]}</strong>
-          </Alert>
-        ) : (
-          <Alert
-            severity="error"
-            style={{
-              zIndex: '1',
-              position: 'fixed',
-              marginTop: '0.5rem',
-              marginLeft: '25%',
-              boxShadow: '0 3px 7px 0 rgba(0, 0, 0, 0.2)',
-            }}
-          >
-            <AlertTitle>Error</AlertTitle>
-            {errorMessage[0]} — <strong>{errorMessage[1]}</strong>
-          </Alert>
-        )
-      ) : (
-        <></>
-      )}
-
       <Typography
         style={{
           marginTop: '2rem',

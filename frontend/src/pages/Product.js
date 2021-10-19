@@ -14,7 +14,6 @@ import {
 } from '@material-ui/core';
 import ToggleButton from '@material-ui/lab/ToggleButton';
 import ToggleButtonGroup from '@material-ui/lab/ToggleButtonGroup';
-import { Alert, AlertTitle } from '@material-ui/lab';
 import {
   findProductById,
   getStocksByProductId,
@@ -84,13 +83,12 @@ export default function Product() {
   const classes = useStyles();
   const { productID } = useParams();
   const navigate = useNavigate();
-  const { GlobalState } = useContext(GlobalContext);
+  const { GlobalState, SetAlertShow, SetAlertSelect, SetErrorMessage } =
+    useContext(GlobalContext);
   const [productApi, SetProductApi] = useState([]);
   const [stockApi, SetStockApi] = useState([]);
   const [countSelectArray, SetCountSelectArray] = useState([]);
   const [buttonSelect, SetButtonSelect] = useState(false);
-  const [alertShow, SetAlertShow] = useState(false);
-  const [alertSelect, SetAlertSelect] = useState(false);
 
   const [cartState, SetCartState] = useState(false);
   const [sizeSelect, SetSizeSelect] = useState(null);
@@ -115,18 +113,26 @@ export default function Product() {
         };
         insertCart(data).then((res) => {
           if (res.status === 201) {
+            SetCartState((prev) => !prev);
+            SetErrorMessage([
+              'เพิ่ม สินค้าลงในตะกร้าเรียบร้อยแล้ว',
+              'โปรดตรวจสอบในตระกร้า',
+            ]);
             SetAlertShow(true);
             SetAlertSelect(true);
             setTimeout(() => {
               SetAlertShow(false);
-            }, 4000);
-            SetCartState((prev) => !prev);
+            }, 3000);
           } else {
+            SetErrorMessage([
+              'เพิ่ม สินค้าลงในตะกร้าไม่สำเร็จ',
+              'กรุณาลองใหม่อีกครั้ง',
+            ]);
             SetAlertShow(true);
             SetAlertSelect(false);
             setTimeout(() => {
               SetAlertShow(false);
-            }, 4000);
+            }, 3000);
           }
         });
       }
@@ -181,40 +187,6 @@ export default function Product() {
   return (
     <div className={classes.root}>
       <Container>
-        {alertShow ? (
-          alertSelect ? (
-            <Alert
-              severity="success"
-              style={{
-                zIndex: '1',
-                position: 'fixed',
-                marginLeft: '25%',
-                boxShadow: '0 3px 7px 0 rgba(0, 0, 0, 0.2)',
-              }}
-            >
-              <AlertTitle>Success</AlertTitle>
-              เพิ่มสินค้าลงในตะกร้าเรียบร้อยแล้ว —{' '}
-              <strong>โปรดตรวจสอบในตระกร้า</strong>
-            </Alert>
-          ) : (
-            <Alert
-              severity="error"
-              style={{
-                zIndex: '1',
-                position: 'fixed',
-                marginLeft: '25%',
-                boxShadow: '0 3px 7px 0 rgba(0, 0, 0, 0.2)',
-              }}
-            >
-              <AlertTitle>Error</AlertTitle>
-              เพิ่มสินค้าลงในตะกร้าไม่สำเร็จ —{' '}
-              <strong>กรุณาลองใหม่อีกครั้ง</strong>
-            </Alert>
-          )
-        ) : (
-          <></>
-        )}
-
         <Grid container spacing={5}>
           <Grid item xs={12} sm={6} lg={7}>
             <div className={classes.centerImage}>

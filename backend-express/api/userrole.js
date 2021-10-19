@@ -8,11 +8,13 @@ router
   .post(controller.insertUserRole);
 router
   .route('/:userRole_id')
-  .get(controller.findUserRoleById)
   .delete(controller.deleteUserRole)
   .patch(controller.updateUserRole);
 router
-  .route('/author/user')
+  .route('/position')
+  .post(controller.findUserRoleById);
+router
+  .route('/position/user')
   .get(controller.getUserRoleOfUser);
 
 module.exports = router;
