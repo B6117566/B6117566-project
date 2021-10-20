@@ -2,7 +2,7 @@ const jwt = require("jsonwebtoken");
 const key = process.env.JWT_SECRETKEY
 
 const authorization = (req, res, next) => {
-  const token = req.headers["authorization"];
+  const token = req.headers["Authorization"];
 
   if (token === undefined) {
     return res.status(401).json({

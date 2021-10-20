@@ -36,7 +36,11 @@ async function signupUser(body) {
 async function updateUserSomeField(user_id, body) {
   return new Promise((resolve, reject) => {
     axios
-      .patch(`user/${user_id}`, body)
+      .patch(`user/${user_id}`, body, {
+        headers: {
+          Authorization: JSON.parse(localStorage.getItem('user')).token,
+        },
+      })
       .then((res) => {
         resolve(res.data);
       })
@@ -49,7 +53,11 @@ async function updateUserSomeField(user_id, body) {
 async function findUserById(user_id) {
   return new Promise((resolve, reject) => {
     axios
-      .get(`user/${user_id}`)
+      .get(`user/${user_id}`, {
+        headers: {
+          Authorization: JSON.parse(localStorage.getItem('user')).token,
+        },
+      })
       .then((res) => {
         resolve(res.data);
       })
