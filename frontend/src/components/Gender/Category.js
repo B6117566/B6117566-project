@@ -55,9 +55,7 @@ export default function Category({ genderName }) {
           .then((res) => {
             SetCategoryApi(res.result);
           })
-          .catch(() => {
-            SetCategoryApi([]);
-          });
+          .catch(() => {});
       }
     });
   }, [genderName]);

@@ -244,12 +244,6 @@ module.exports = {
   findProducts: function (req, res, next) {
     const s_product = req.params.s_product;
 
-    if (!s_product.match(/^[A-Za-z\s]+$/)) {
-      return res.status(400).json({
-        sucessful: false,
-        result: { messages: 'input search product was not correct format' },
-      });
-    }
     //---------------------------------------------------------
     let limit = 20;
     let offset = 0;
@@ -374,7 +368,8 @@ module.exports = {
       return res.status(400).json({
         sucessful: false,
         result: {
-          messages: 'data product get only one or two field was not correct format',
+          messages:
+            'data product get only one or two field was not correct format',
         },
       });
     }

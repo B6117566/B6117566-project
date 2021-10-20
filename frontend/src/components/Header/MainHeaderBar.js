@@ -7,7 +7,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import MainMenuManageIcon from './MainMenuManageIcon';
 import MainMenuSelectIcon from './MainMenuSelectIcon';
 import { Container } from '@material-ui/core';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -58,7 +58,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(1, 1, 1, 0),
     paddingLeft: `calc(1em + ${theme.spacing(4)}px)`,
     transition: theme.transitions.create('width'),
-    fontWeight:'bold',
+    fontWeight: 'bold',
     [theme.breakpoints.up('sm')]: {
       width: '15ch',
       '&:focus': {
@@ -70,6 +70,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function MainHeader() {
   const classes = useStyles();
+  const navigate = useNavigate();
   const [search, setSearch] = React.useState('');
 
   const handleChange = (event) => {
@@ -82,7 +83,11 @@ export default function MainHeader() {
         <Toolbar>
           <Link to="/" style={{ textDecoration: 'none', color: 'black' }}>
             <div className={classes.title}>
-              <img src="/static/logo.png" alt="LOGO" className={classes.imgTitle} />
+              <img
+                src="/static/logo.png"
+                alt="LOGO"
+                className={classes.imgTitle}
+              />
               <Typography variant="h5" noWrap>
                 <b>Clothing Store</b>
               </Typography>
@@ -106,8 +111,11 @@ export default function MainHeader() {
               onChange={handleChange}
               onKeyDown={(event) => {
                 if (event.keyCode === 13) {
-                  console.log(search || null);
+                  navigate(`/search/${search}`);
                 }
+              }}
+              onClick={() => {
+                setSearch('');
               }}
             />
           </div>

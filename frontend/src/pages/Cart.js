@@ -180,10 +180,7 @@ export default function Cart() {
           })
         );
       })
-      .catch(() => {
-        SetCartApi([]);
-        SetIDList([]);
-      });
+      .catch(() => {});
   }, [deleteSelectState, orderState]);
 
   useEffect(() => {

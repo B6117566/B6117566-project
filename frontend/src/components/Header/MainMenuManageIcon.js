@@ -5,7 +5,6 @@ import { Link, useNavigate } from 'react-router-dom';
 import ShoppingCartOutlinedIcon from '@material-ui/icons/ShoppingCartOutlined';
 import AccountCircleOutlinedIcon from '@material-ui/icons/AccountCircleOutlined';
 import { GlobalContext } from '../../context/GlobalProvider';
-import { getUserRoleOfUser } from '../../services/UserRole';
 
 const useStyles = makeStyles(() => ({
   marginBorder: {
@@ -68,14 +67,7 @@ function MainMenuManageIcon() {
           };
           localStorage.setItem('user', JSON.stringify(userNull));
           SetUserLoginDP(userNull);
-
-          try {
-            const data = await getUserRoleOfUser();
-            SetAuthorPartDP(data.result.authorizationPart);
-          } catch (error) {
-            SetAuthorPartDP(null);
-          }
-
+          SetAuthorPartDP(null);
           navigate('/');
         }}
       >
@@ -87,15 +79,15 @@ function MainMenuManageIcon() {
   return (
     <div className={classes.marginBorder}>
       <div>
-        <Link to="/cart" style={{ textDecoration: 'none', color: 'black' }}>
-          <IconButton aria-label="show 4 new mails" color="inherit">
-            <Badge badgeContent={0} color="secondary">
-              <ShoppingCartOutlinedIcon />
-            </Badge>
-          </IconButton>
-        </Link>
         {GlobalState.user.isAuthen ? (
           <>
+            <Link to="/cart" style={{ textDecoration: 'none', color: 'black' }}>
+              <IconButton aria-label="show 4 new mails" color="inherit">
+                <Badge badgeContent={0} color="secondary">
+                  <ShoppingCartOutlinedIcon />
+                </Badge>
+              </IconButton>
+            </Link>
             <IconButton
               edge="end"
               aria-label="account of current user"

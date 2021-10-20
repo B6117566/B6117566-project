@@ -192,8 +192,6 @@ export default function Account() {
           SetAddressFilterApi(getUniqueListBy(res.result, 'districtName'));
         })
         .catch((error) => {
-          SetAddressApi([]);
-          SetAddressFilterApi([]);
           try {
             const { status } = error.response;
             if (status === 404) {
@@ -219,9 +217,6 @@ export default function Account() {
             }
           } catch (error) {}
         });
-    } else {
-      SetAddressApi([]);
-      SetAddressFilterApi([]);
     }
   }, [province_id]);
 

@@ -72,6 +72,19 @@ async function findProductById(product_id) {
   });
 }
 
+async function findProductsBySearch(s_product) {
+  return new Promise((resolve, reject) => {
+    axios
+      .get(`product/search/${s_product}`)
+      .then((res) => {
+        resolve(res.data);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+}
+
 async function getStocksByProductId(product_id) {
   return new Promise((resolve, reject) => {
     axios
@@ -104,6 +117,7 @@ export {
   getProductsAllByGender,
   getProductsAllByCategoryGender,
   findProductById,
+  findProductsBySearch,
   getStocksByProductId,
   insertCart,
 };

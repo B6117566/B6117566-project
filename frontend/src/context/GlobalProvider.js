@@ -1,6 +1,5 @@
 import React, { createContext, useEffect, useReducer, useState } from 'react';
 import {
-  getUserRoleOfUser,
   findUserRoleById,
   checkExpiresAuthorization,
 } from '../services/UserRole';
@@ -16,15 +15,13 @@ async function checkInitAuthorPart() {
         const data = await findUserRoleById(UserData.userRole._id);
         return data.result.authorizationPart;
       } else {
-        const data = await getUserRoleOfUser();
-        return data.result.authorizationPart;
+        return [];
       }
     } else {
-      const data = await getUserRoleOfUser();
-      return data.result.authorizationPart;
+      return [];
     }
   } catch (error) {
-    return null;
+    return [];
   }
 }
 

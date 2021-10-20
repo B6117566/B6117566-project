@@ -27,9 +27,7 @@ export default function MainMenuSelectIcon() {
         SetGenderApi(res.result);
         SetGenderDP(res.result);
       })
-      .catch(() => {
-        SetGenderApi([]);
-      });
+      .catch(() => {});
   }, []);
 
   const genderElements = gendersApi.map((item) => {
