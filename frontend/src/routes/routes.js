@@ -12,6 +12,7 @@ import NotFound from '../pages/NotFound';
 const HomePage = lazy(() => import('../pages/HomePage'));
 const Product = lazy(() => import('../pages/Product'));
 const Gender = lazy(() => import('../pages/Gender'));
+const Search = lazy(() => import('../pages/Search'));
 const Cart = lazy(() => import('../pages/Cart'));
 const Order = lazy(() => import('../pages/Order'));
 const Account = lazy(() => import('../pages/Account'));
@@ -28,6 +29,7 @@ export default function Router() {
       <Route path="/" element={<MainLayout />}>
         <Route path="/" element={SuspenseLazy(<HomePage />)} />
         <Route path="/genders/:genderName" element={SuspenseLazy(<Gender />)} />
+        <Route path="/search/:search" element={SuspenseLazy(<Search />)} />
         <Route
           path="/products/:productID"
           element={SuspenseLazy(<Product />)}
@@ -50,19 +52,5 @@ export default function Router() {
         <Route path="*" element={<Navigate to="/404" />} />
       </Route>
     </Routes>
-
-    /* 
-  {
-    path: '/dashboard',
-    element: <DashboardLayout />,
-    children: [
-      { path: '/', element: <Dashboard /> },
-      { path: 'account', element: <Account /> },
-      { path: 'customers', element: <CustomerList /> },
-      { path: 'products', element: <ProductList /> },
-      { path: 'settings', element: <Settings /> },
-      { path: '*', element: <Navigate to="/404" /> },
-    ],
-  }, */
   );
 }

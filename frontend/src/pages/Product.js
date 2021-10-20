@@ -147,18 +147,14 @@ export default function Product() {
         .then((res) => {
           SetStockApi(res.result);
         })
-        .catch(() => {
-          SetStockApi([]);
-        });
+        .catch(() => {});
     }
     if (!GlobalState.product) {
       findProductById(productID)
         .then((res) => {
           SetProductApi(res.result);
         })
-        .catch(() => {
-          SetProductApi([]);
-        });
+        .catch(() => {});
       getStocks(productID);
     } else {
       SetProductApi(GlobalState.product);

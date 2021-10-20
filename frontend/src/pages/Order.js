@@ -57,7 +57,6 @@ export default function Order() {
         try {
           const { status } = error.response;
           if (status !== 404) {
-            SetOrderApi([]);
             SetErrorMessage([
               'ระบบไม่สามารถดึงรายการรายการสั่งซื้อได้',
               'กรุณาลองใหม่อีกครั้ง',
