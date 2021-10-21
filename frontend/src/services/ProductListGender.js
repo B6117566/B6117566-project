@@ -101,7 +101,11 @@ async function getStocksByProductId(product_id) {
 async function insertCart(body) {
   return new Promise((resolve, reject) => {
     axios
-      .post(`cart`, body)
+      .post(`cart`, body, {
+        headers: {
+          Authorization: JSON.parse(localStorage.getItem('user')).token,
+        },
+      })
       .then((res) => {
         resolve(res);
       })

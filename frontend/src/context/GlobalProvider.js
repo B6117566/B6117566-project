@@ -11,7 +11,7 @@ async function checkInitAuthorPart() {
   } catch (error) {}
   try {
     if (UserData) {
-      if (UserData.userRole._id) {
+      if (UserData.isAuthen && UserData.userRole._id) {
         const data = await findUserRoleById(UserData.userRole._id);
         return data.result.authorizationPart;
       } else {

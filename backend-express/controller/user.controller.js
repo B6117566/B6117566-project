@@ -141,7 +141,7 @@ module.exports = {
       };
 
       if (loginStatus) {
-        const token = jwt.sign(resultSend, key, { expiresIn: 60 * 60 });
+        const token = jwt.sign(resultSend, key, { expiresIn: '3h' });
         res.status(200).json({
           sucessful: true,
           result: { ...resultSend, token },
