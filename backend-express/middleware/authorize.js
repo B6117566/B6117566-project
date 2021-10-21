@@ -17,6 +17,7 @@ const authorization = (req, res, next) => {
           result: { messages: 'Unauthorized' },
         });
       } else {
+        req.User_ID = decode._id;
         req.UserRole_ID = decode.userRole._id;
         req.URL_AUTOR = '/' + req.baseUrl.split('/')[3];
         next();

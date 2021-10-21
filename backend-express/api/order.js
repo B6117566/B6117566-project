@@ -1,8 +1,9 @@
 const expressFunction = require('express');
 const router = expressFunction.Router();
 const controller = require('../controller/order.controller');
-const authorization = require('../config/authorize');
-const accessControl = require('../config/accessControl');
+const authorization = require('../middleware/authorize');
+const accessControl = require('../middleware/accessControl');
+const userAccess = require('../middleware/userAccess');
 
 router
   .route('/')
@@ -10,6 +11,6 @@ router
   .post(authorization, accessControl, controller.insertOrder);
 router
   .route('/user/:user_id')
-  .get(authorization, accessControl, controller.getOrdersByUserId);
+  .get(authorization, accessControl, userAccess, controller.getOrdersByUserId);
 
 module.exports = router;
