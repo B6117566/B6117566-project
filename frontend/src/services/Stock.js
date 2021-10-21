@@ -10,7 +10,11 @@ const axios = Axios.create(axiosConfig);
 async function updateStockSomeField(stock_id, body) {
   return new Promise((resolve, reject) => {
     axios
-      .patch(`stock/${stock_id}`, body)
+      .patch(`stock/${stock_id}`, body, {
+        headers: {
+          Authorization: JSON.parse(localStorage.getItem('user')).token,
+        },
+      })
       .then((res) => {
         resolve(res.data);
       })

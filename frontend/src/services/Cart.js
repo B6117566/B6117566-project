@@ -10,7 +10,11 @@ const axios = Axios.create(axiosConfig);
 async function getCartsByUserId(user_id) {
   return new Promise((resolve, reject) => {
     axios
-      .get(`cart/user/${user_id}`)
+      .get(`cart/user/${user_id}`, {
+        headers: {
+          Authorization: JSON.parse(localStorage.getItem('user')).token,
+        },
+      })
       .then((res) => {
         resolve(res.data);
       })
@@ -23,7 +27,11 @@ async function getCartsByUserId(user_id) {
 async function deleteCart(cart_id) {
   return new Promise((resolve, reject) => {
     axios
-      .delete(`cart/${cart_id}`)
+      .delete(`cart/${cart_id}`, {
+        headers: {
+          Authorization: JSON.parse(localStorage.getItem('user')).token,
+        },
+      })
       .then((res) => {
         resolve(res.data);
       })
@@ -36,7 +44,11 @@ async function deleteCart(cart_id) {
 async function updateCartSomeField(cart_id, body) {
   return new Promise((resolve, reject) => {
     axios
-      .patch(`cart/${cart_id}`, body)
+      .patch(`cart/${cart_id}`, body, {
+        headers: {
+          Authorization: JSON.parse(localStorage.getItem('user')).token,
+        },
+      })
       .then((res) => {
         resolve(res.data);
       })

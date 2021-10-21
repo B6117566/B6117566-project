@@ -6,9 +6,9 @@ module.exports = {
   checkExpiresAuthorization: function (req, res, next) {
     const token = req.body.token;
     if (!token) {
-      return res.status(400).json({
+      return res.status(401).json({
         sucessful: false,
-        result: { messages: 'Bad Request' },
+        result: { messages: 'Unauthorized' },
       });
     } else {
       jwt.verify(token, key, (err) => {

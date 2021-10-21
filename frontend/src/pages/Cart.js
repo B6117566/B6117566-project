@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Container,
@@ -13,7 +14,6 @@ import {
   MenuItem,
   IconButton,
 } from '@material-ui/core';
-
 import ClearIcon from '@material-ui/icons/Clear';
 import {
   getCartsByUserId,
@@ -59,6 +59,7 @@ const useStyles = makeStyles({
 
 export default function Cart() {
   const classes = useStyles();
+  const navigate = useNavigate();
   const { GlobalState, SetAlertShow, SetAlertSelect, SetErrorMessage } =
     useContext(GlobalContext);
   const [cartApi, SetCartApi] = useState([]);
@@ -70,11 +71,22 @@ export default function Cart() {
   const [orderState, SetOrderState] = useState(false);
 
   const handleCountSelect = (index, e, id) => {
-    updateCartSomeField(id, { quantity: e.target.value }).then(() => {
-      const data = cartApi;
-      data[index].quantity = e.target.value;
-      SetCartApi([...data]);
-    });
+    updateCartSomeField(id, { quantity: e.target.value })
+      .then(() => {
+        const data = cartApi;
+        data[index].quantity = e.target.value;
+        SetCartApi([...data]);
+      })
+      .catch((error) => {
+        try {
+          const { status } = error.response;
+          if (status === 400 || status === 401) {
+            navigate('/auth/signin');
+          } else if (status === 403) {
+            navigate('/404');
+          }
+        } catch (err) {}
+      });
   };
 
   const handleOrder = async () => {
@@ -84,13 +96,31 @@ export default function Cart() {
 
     await Promise.all(
       cartApi.map(async (item) => {
-        await updateCartSomeField(item._id, { isCart: false }).catch(() => {
-          checkErrorUpdate = false;
-        });
+        await updateCartSomeField(item._id, { isCart: false }).catch(
+          (error) => {
+            checkErrorUpdate = false;
+            try {
+              const { status } = error.response;
+              if (status === 400 || status === 401) {
+                navigate('/auth/signin');
+              } else if (status === 403) {
+                navigate('/404');
+              }
+            } catch (err) {}
+          }
+        );
         await updateStockSomeField(item.stock_id._id, {
           quantity: item.stock_id.quantity - item.quantity,
-        }).catch(() => {
+        }).catch((error) => {
           checkErrorStockQuantity = false;
+          try {
+            const { status } = error.response;
+            if (status === 400 || status === 401) {
+              navigate('/auth/signin');
+            } else if (status === 403) {
+              navigate('/404');
+            }
+          } catch (err) {}
         });
       })
     );
@@ -104,6 +134,14 @@ export default function Cart() {
         });
       } catch (error) {
         checkErrorOrder = false;
+        try {
+          const { status } = error.response;
+          if (status === 400 || status === 401) {
+            navigate('/auth/signin');
+          } else if (status === 403) {
+            navigate('/404');
+          }
+        } catch (err) {}
       }
     }
 
@@ -155,6 +193,10 @@ export default function Cart() {
             setTimeout(() => {
               SetAlertShow(false);
             }, 3000);
+          } else if (status === 400 || status === 401) {
+            navigate('/auth/signin');
+          } else if (status === 403) {
+            navigate('/404');
           }
         } catch (error) {
           SetErrorMessage([
@@ -180,7 +222,27 @@ export default function Cart() {
           })
         );
       })
-      .catch(() => {});
+      .catch((error) => {
+        SetCartApi([]);
+        try {
+          const { status } = error.response;
+          if (status === 400 || status === 401) {
+            navigate('/auth/signin');
+          } else if (status === 403) {
+            navigate('/404');
+          } else if (status !== 404) {
+            SetErrorMessage([
+              'ระบบไม่สามารถดึงรายการสินค้าในตะกร้าได้',
+              'กรุณาลองใหม่อีกครั้ง',
+            ]);
+            SetAlertShow(true);
+            SetAlertSelect(false);
+            setTimeout(() => {
+              SetAlertShow(false);
+            }, 3000);
+          }
+        } catch (err) {}
+      });
   }, [deleteSelectState, orderState]);
 
   useEffect(() => {

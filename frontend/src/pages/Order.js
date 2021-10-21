@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { makeStyles } from '@material-ui/core/styles';
 import {
   Container,
@@ -43,6 +44,7 @@ const useStyles = makeStyles({
 
 export default function Order() {
   const classes = useStyles();
+  const navigate = useNavigate();
   const { GlobalState, SetAlertShow, SetAlertSelect, SetErrorMessage } =
     useContext(GlobalContext);
   const [orderApi, SetOrderApi] = useState([]);
@@ -56,9 +58,13 @@ export default function Order() {
       .catch((error) => {
         try {
           const { status } = error.response;
-          if (status !== 404) {
+          if (status === 400 || status === 401) {
+            navigate('/auth/signin');
+          } else if (status === 403) {
+            navigate('/404');
+          } else if (status !== 404) {
             SetErrorMessage([
-              'ระบบไม่สามารถดึงรายการรายการสั่งซื้อได้',
+              'ระบบไม่สามารถดึงรายการสั่งซื้อได้',
               'กรุณาลองใหม่อีกครั้ง',
             ]);
             SetAlertShow(true);

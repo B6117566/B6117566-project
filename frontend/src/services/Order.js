@@ -10,7 +10,11 @@ const axios = Axios.create(axiosConfig);
 async function getOrdersByUserId(user_id) {
   return new Promise((resolve, reject) => {
     axios
-      .get(`order/user/${user_id}`)
+      .get(`order/user/${user_id}`, {
+        headers: {
+          Authorization: JSON.parse(localStorage.getItem('user')).token,
+        },
+      })
       .then((res) => {
         resolve(res.data);
       })
@@ -23,7 +27,11 @@ async function getOrdersByUserId(user_id) {
 async function insertOrder(body) {
   return new Promise((resolve, reject) => {
     axios
-      .post(`order`, body)
+      .post(`order`, body, {
+        headers: {
+          Authorization: JSON.parse(localStorage.getItem('user')).token,
+        },
+      })
       .then((res) => {
         resolve(res);
       })

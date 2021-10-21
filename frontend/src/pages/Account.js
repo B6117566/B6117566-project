@@ -136,7 +136,11 @@ export default function Account() {
       .catch((error) => {
         try {
           const { status } = error.response;
-          if (status !== 404) {
+          if (status === 400 || status === 401) {
+            navigate('/auth/signin');
+          } else if (status === 403) {
+            navigate('/404');
+          } else if (status !== 404) {
             SetErrorMessage([
               'ระบบไม่สามารถดึงข้อมูลบัญชีผู้ใช้ได้',
               'กรุณาลองใหม่อีกครั้ง',
@@ -256,6 +260,10 @@ export default function Account() {
             setTimeout(() => {
               SetAlertShow(false);
             }, 3000);
+          } else if (status === 401) {
+            navigate('/auth/signin');
+          } else if (status === 403) {
+            navigate('/404');
           }
         } catch (error) {
           SetErrorMessage([

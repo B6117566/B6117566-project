@@ -1,27 +1,24 @@
-const jwt = require("jsonwebtoken");
-const key = process.env.JWT_SECRETKEY
+const jwt = require('jsonwebtoken');
+const key = process.env.JWT_SECRETKEY;
 
 const authorization = (req, res, next) => {
-  const token = req.headers["authorization"];
+  const token = req.headers['authorization'];
 
-  if (token === undefined) {
+  if (!token) {
     return res.status(401).json({
-      status: 401,
-      message: "Unauthorized",
+      sucessful: false,
+      result: { messages: 'Unauthorized' },
     });
   } else {
     jwt.verify(token, key, (err, decode) => {
       if (err) {
         return res.status(401).json({
-          status: 401,
-          message: "Unauthorized",
+          sucessful: false,
+          result: { messages: 'Unauthorized' },
         });
       } else {
-
-        console.log("AUTHER", decode);
-        console.log(req.baseUrl);
-        console.log(req.method);
-
+        req.UserRole_ID = decode.userRole._id;
+        req.URL_AUTOR = '/' + req.baseUrl.split('/')[3];
         next();
       }
     });

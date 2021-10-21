@@ -49,6 +49,24 @@ const ffindUserRoleById = async (id) => {
   });
 };
 
+const fnfindUserRoleById = async (id) => {
+  return new Promise((resolve, reject) => {
+    UserRole.findById(id, (err, data) => {
+      if (err) {
+        reject(err);
+      } else {
+        if (data) {
+          resolve(data);
+        } else {
+          reject(new Error('cannot find UserRole by id'));
+        }
+      }
+    })
+      .select('-accessPart')
+      .lean();
+  });
+};
+
 const finsertUserRole = async (data) => {
   return new Promise((resolve, reject) => {
     const newUserRole = new UserRole(data);
@@ -133,7 +151,7 @@ module.exports = {
       });
     }
     //---------------------------------------------------------
-    ffindUserRoleById(userRole_id)
+    fnfindUserRoleById(userRole_id)
       .then((result) => {
         res.status(200).json({
           sucessful: true,
