@@ -2,7 +2,7 @@ require('dotenv').config({ path: '../.env' });
 const expressFunction = require('express');
 const expressApp = expressFunction();
 const bodyParser = require('body-parser');
-const database = require('./config/database');
+const database = require('./middleware/database');
 //--------------------------------------------------------------------------
 
 //middleware

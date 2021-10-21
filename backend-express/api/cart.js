@@ -1,8 +1,9 @@
 const expressFunction = require('express');
 const router = expressFunction.Router();
 const controller = require('../controller/cart.controller');
-const authorization = require('../config/authorize');
-const accessControl = require('../config/accessControl');
+const authorization = require('../middleware/authorize');
+const accessControl = require('../middleware/accessControl');
+const userAccess = require('../middleware/userAccess');
 
 router.route('/').post(authorization, accessControl, controller.insertCart);
 router
@@ -11,6 +12,6 @@ router
   .patch(authorization, accessControl, controller.updateCartSomeField);
 router
   .route('/user/:user_id')
-  .get(authorization, accessControl, controller.getCartsByUserId);
+  .get(authorization, accessControl, userAccess, controller.getCartsByUserId);
 
 module.exports = router;

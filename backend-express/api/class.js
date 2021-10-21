@@ -1,8 +1,8 @@
 const expressFunction = require('express');
 const router = expressFunction.Router();
 const controller = require('../controller/class.controller');
-const authorization = require('../config/authorize');
-const accessControl = require('../config/accessControl');
+const authorization = require('../middleware/authorize');
+const accessControl = require('../middleware/accessControl');
 
 router
   .route('/')
