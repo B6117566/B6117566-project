@@ -12,11 +12,9 @@ const database = (req, res, next) => {
   mongoose
     .connect(url, config)
     .then(() => {
-      console.log('Connected to MongoDB....'); //warnning performance
       next();
     })
     .catch(() => {
-      console.log('Cant Connected to MongoDB....');
       res.status(500).json({
         sucessful: false,
         result: { messages: 'Internal Server error' },
