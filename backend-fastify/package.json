@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "cross-env NODE_ENV=production node app.js",
+    "start": "cross-env NODE_ENV=production node --max-old-space-size=8192 app.js",
     "dev": "cross-env NODE_ENV=development nodemon app.js"
   },
   "keywords": [],
@@ -13,10 +13,11 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "dotenv": "^10.0.0",
-    "fastify": "^3.21.2",
-    "fastify-cors": "^6.0.2",
+    "fastify": "^3.22.1",
+    "fastify-plugin": "^3.0.0",
     "jsonwebtoken": "^8.5.1",
-    "mongoose": "^5.13.9"
+    "mongoose": "^5.13.9",
+    "validator": "^13.6.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

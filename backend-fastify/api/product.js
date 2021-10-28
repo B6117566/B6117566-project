@@ -1,0 +1,42 @@
+const controller = require('../controller/product.controller');
+const authorization = require('../middleware/authorize');
+const accessControl = require('../middleware/accessControl');
+
+const optsAuthorizationAndAccessControl = {
+  preHandler: function (request, reply, done) {
+    fastify.register(authorization);
+    fastify.register(accessControl);
+    done();
+  },
+};
+
+module.exports = function (fastify, options, done) {
+  fastify.post(
+    '/',
+    optsAuthorizationAndAccessControl,
+    controller.insertProduct
+  );
+
+  fastify.get('/:product_id', controller.findProductById);
+  fastify.delete(
+    '/:product_id',
+    optsAuthorizationAndAccessControl,
+    controller.deleteProduct
+  );
+  fastify.patch(
+    '/:product_id',
+    optsAuthorizationAndAccessControl,
+    controller.updateProductSomeField
+  );
+
+  fastify.get('/gender/:gender_id', controller.getProductsAllByGender);
+
+  fastify.get(
+    '/category/:category_id',
+    controller.getProductsAllByCategoryGender
+  );
+
+  fastify.get('/search/:s_product', controller.findProducts);
+
+  done();
+};
