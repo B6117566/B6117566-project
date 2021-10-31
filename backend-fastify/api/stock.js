@@ -3,14 +3,10 @@ const authorization = require('../middleware/authorize');
 const accessControl = require('../middleware/accessControl');
 
 const optsAuthorizationAndAccessControl = {
-  preHandler: function (request, reply, done) {
-    fastify.register(authorization);
-    fastify.register(accessControl);
-    done();
-  },
+  preHandler: [authorization, accessControl],
 };
 
-module.exports = function (fastify, options, done) {
+module.exports = function (fastify, options, next) {
   fastify.post('/', optsAuthorizationAndAccessControl, controller.insertStock);
 
   fastify.delete(
@@ -26,5 +22,5 @@ module.exports = function (fastify, options, done) {
 
   fastify.get('/product/:product_id', controller.getStocksByProductId);
 
-  done();
+  next();
 };

@@ -2,21 +2,11 @@ require('dotenv').config({ path: '../.env' });
 const fastify = require('fastify')({ logger: false });
 //--------------------------------------------------------------------------
 
-//middleware
-fastify.addHook('onRequest', (req, reply, done) => {
-  reply.header(
-    'Access-Control-Allow-Origin',
-    process.env.BACKEND_ACCESS_CONTROL_ORIGIN
-  );
-  reply.header(
-    'Access-Control-Allow-Methods',
-    process.env.BACKEND_ACCESS_CONTROL_METHODS
-  );
-  reply.header(
-    'Access-Control-Allow-Headers',
-    process.env.BACKEND_ACCESS_CONTROL_HEADER
-  );
-  done();
+//CORS
+fastify.register(require('fastify-cors'), {
+  origin: process.env.BACKEND_ACCESS_CONTROL_ORIGIN,
+  methods: process.env.BACKEND_ACCESS_CONTROL_METHODS,
+  allowedHeaders: process.env.BACKEND_ACCESS_CONTROL_HEADER,
 });
 
 //Connect Database
@@ -26,11 +16,15 @@ fastify.register(require('./middleware/database'));
 // Declare a route Endpoint (API)
 fastify.register(require('./routes/v1'), { prefix: '/api/v1' });
 
-fastify.all('*', (req, reply) => {
-  reply.code(501).send({
-    sucessful: false,
-    result: { messages: 'Method Not Implemented' },
-  });
+fastify.route({
+  method: ['DELETE', 'GET', 'HEAD', 'PATCH', 'POST', 'PUT'],
+  url: '*',
+  handler: function (req, reply) {
+    reply.code(501).send({
+      sucessful: false,
+      result: { messages: 'Method Not Implemented' },
+    });
+  },
 });
 //----------------------------------------------------------------------------
 
@@ -39,8 +33,7 @@ const start = async () => {
   try {
     await fastify.listen(process.env.BACKEND_PORT);
   } catch (error) {
-    fastify.log.error(error);
-    process.exit(1);
+    throw error;
   }
 };
 

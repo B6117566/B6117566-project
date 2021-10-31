@@ -4,23 +4,14 @@ const accessControl = require('../middleware/accessControl');
 const userAccess = require('../middleware/userAccess');
 
 const optsAuthorizationAndAccessControl = {
-  preHandler: function (request, reply, done) {
-    fastify.register(authorization);
-    fastify.register(accessControl);
-    done();
-  },
+  preHandler: [authorization, accessControl],
 };
 
 const optsAuthorizationAndAccessControlAndUserAccess = {
-  preHandler: function (request, reply, done) {
-    fastify.register(authorization);
-    fastify.register(accessControl);
-    fastify.register(userAccess);
-    done();
-  },
+  preHandler: [authorization, accessControl, userAccess],
 };
 
-module.exports = function (fastify, options, done) {
+module.exports = function (fastify, options, next) {
   fastify.post('/', optsAuthorizationAndAccessControl, controller.insertCart);
 
   fastify.delete(
@@ -40,5 +31,5 @@ module.exports = function (fastify, options, done) {
     controller.getCartsByUserId
   );
 
-  done();
+  next();
 };
