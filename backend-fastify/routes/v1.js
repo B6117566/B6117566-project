@@ -1,4 +1,4 @@
-module.exports = function (fastify, options, done) {
+module.exports = function (fastify, options, next) {
   fastify.decorateRequest('User_ID', '');
   fastify.decorateRequest('UserRole_ID', '');
   fastify.decorateRequest('URL_AUTOR', '');
@@ -17,5 +17,5 @@ module.exports = function (fastify, options, done) {
   fastify.register(require('../api/user'), { prefix: '/user' });
   fastify.register(require('../api/userrole'), { prefix: '/userrole' });
 
-  done();
+  next();
 };

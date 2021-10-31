@@ -3,14 +3,10 @@ const authorization = require('../middleware/authorize');
 const accessControl = require('../middleware/accessControl');
 
 const optsAuthorizationAndAccessControl = {
-  preHandler: function (request, reply, done) {
-    fastify.register(authorization);
-    fastify.register(accessControl);
-    done();
-  },
+  preHandler: [authorization, accessControl],
 };
 
-module.exports = function (fastify, options, done) {
+module.exports = function (fastify, options, next) {
   fastify.get('/', controller.getGenders);
   fastify.post('/', optsAuthorizationAndAccessControl, controller.insertGender);
 
@@ -25,5 +21,5 @@ module.exports = function (fastify, options, done) {
     controller.updateGender
   );
 
-  done();
+  next();
 };
